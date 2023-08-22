@@ -1,95 +1,81 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import Image from "next/image";
+import requestWeather from "./API/Request"
+import styled from "styled-components"
+import { useEffect, useState } from "react"
 
+
+const MainDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8rem;
+  min-height: 100vh;
+`;
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const [city, setCity] = useState("münster")
+const [data, setData] = useState(null)
+const [error, setError] = useState(false)
+useEffect(() => {
+  // Define an asynchronous function to fetch data
+  async function fetchData() {
+    try {
+      const weatherData = await requestWeather(city);
+      setData(weatherData); // Update the state with fetched data
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+      if (error.code === 1006) {
+        setData(null)
+        setError(true)
+        
+        
+      }
+    }
+  }
+  fetchData(); // Call the async function to fetch data
+  
+}, [city]);
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+function HandleChangeCity(e) {
+  e.preventDefault();
+  console.log(e.target.city.value)
+  setCity(e.target.city.value)
+}
+if (!data || !data.location) {
+  return( <>
+  <MainDiv>
+   <h1>Weather To Do</h1>
+  <h1>Please insert a city</h1>
+  <form onSubmit ={(e) => HandleChangeCity(e)}>
+  <input required type ="text" name="city" placeholder="City" ></input>
+     {error && <p>City not found</p>}
+     <button type = "submit">Search</button>
+     </form>
+     </MainDiv>
+  </>
   )
+}
+
+  return (
+ <>
+ <MainDiv>
+  <h1>Weather To Do</h1>
+    {data && 
+    <>
+    <p>{data.location.name}</p>
+     <p>{data.location.localtime}</p>
+     <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
+     <p>{data.forecast.forecastday[0].day.condition.text}</p>
+     <Image src={"https://"+data.forecast.forecastday[0].day.condition.icon} width={150} height={150} alt="icon" />
+     </>
+     }
+     <form onSubmit ={(e) => HandleChangeCity(e)}>
+     <input required type ="text" name="city" placeholder="City" ></input>
+     {error && <p>City not found</p>}
+     <button type = "submit">Search</button>
+     </form>
+     </MainDiv>
+ </>
+)
 }
