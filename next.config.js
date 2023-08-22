@@ -10,5 +10,9 @@ module.exports = {
             }
         ]
     },
-    nextConfig
+    nextConfig,
+    env: {
+        HOST: process.env.HOST,
+        KEY: process.env.KEY
+    }
 }
