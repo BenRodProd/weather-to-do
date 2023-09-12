@@ -17,6 +17,7 @@ import styled from "styled-components";
 import handleLogout from "@/service/logout";
 import writeToDatabase from "@/service/write";
 import fetchUserCityFromDatabase from "@/service/fetchCity";
+import writeTaskToDatabase from "@/service/writeTask";
 
 const MainDiv = styled.div`
   display: flex;
@@ -29,9 +30,10 @@ const MainDiv = styled.div`
 
 const RadioStyle = styled.div`
 display:flex;
-
+user-select: none;
 label {
   margin-left: 1rem;
+  user-select:none;
 }
 
 `
@@ -61,11 +63,11 @@ border: 3px solid black;
   border-radius: 10px;
   padding: 20px;
   gap:3rem;
-
+  user-select: none;
 `;
 
 const NoRadio = styled.input`
-  display: none
+  display: none;
 `
 
 const SettingsButton = styled.button`
@@ -168,6 +170,8 @@ export default function Main({ user }) {
 
 function HandleSubmitTask(e) {
   e.preventDefault();
+  console.log(e.target)
+  writeTaskToDatabase(e.target.name.value, e.target.weather.value, e.target.weatherOption.value, e.target.allDay.value, e.target.timeOption.value, e.target.repeat.value, e.target.repeatOption.value, user.email)
 }
 
   async function HandleChangeCity(e) {
