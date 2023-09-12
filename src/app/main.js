@@ -18,7 +18,7 @@ import handleLogout from "@/service/logout";
 import writeToDatabase from "@/service/write";
 import fetchUserCityFromDatabase from "@/service/fetchCity";
 import writeTaskToDatabase from "@/service/writeTask";
-
+import fetchUserTasksFromFirestore from "@/service/fetchTasks";
 const MainDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -35,7 +35,18 @@ label {
   margin-left: 1rem;
   user-select:none;
 }
+`
 
+const TaskCard = styled.ul`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid black;
+  border-radius: 10px;
+  list-style: none;
+  margin: 1rem;
 `
 
 const BackDropper = styled.div`
@@ -128,7 +139,7 @@ export default function Main({ user }) {
   const [showWeatherOptions, setShowWeatherOptions] = useState(false);
   const [showTimeOptions, setShowTimeOptions] = useState(false);
   const [showRepeatOptions, setShowRepeatOptions] = useState(false);
-  
+  const [allTasks, setAllTasks] = useState([]);
 
   const [weatherOption, setWeatherOption] = useState('goodWeather');
 
@@ -168,10 +179,23 @@ export default function Main({ user }) {
     // Replace 'fetchUserCityFromDatabase' with the actual function to fetch the user's city
   }, [city, user.email]);
 
+  useEffect(() => {
+    if (user) {
+      fetchUserTasksFromFirestore(user.email)
+  .then((tasks) => {
+   
+      setAllTasks(tasks)
+      
+    })
+  }
+  },[])
+
+
 function HandleSubmitTask(e) {
   e.preventDefault();
-  console.log(e.target)
-  writeTaskToDatabase(e.target.name.value, e.target.weather.value, e.target.weatherOption.value, e.target.allDay.value, e.target.timeOption.value, e.target.repeat.value, e.target.repeatOption.value, user.email)
+  console.log(e.target.name.value, e.target.weather.value, e.target.weatherOption.value, e.target.allDay.value, e.target.timeOption.value, e.target.repeat.value, repeatOption, user.email)
+  writeTaskToDatabase(e.target.name.value, e.target.weather.value, e.target.weatherOption.value, e.target.allDay.value, e.target.timeOption.value, e.target.repeat.value, repeatOption, user.email)
+  e.target.reset();
 }
 
   async function HandleChangeCity(e) {
@@ -201,7 +225,7 @@ function HandleSubmitTask(e) {
     }
   }
   
-console.log("data",data)
+
 
 const handleWeatherChange = (e) => {
   setShowWeatherOptions(e.target.checked);
@@ -252,8 +276,14 @@ return (
     <MainDiv>
       <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
       <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
-      {data && (
+      {allTasks.length > 0 && (
         <>
+        {allTasks.map((task) => {
+          return <TaskCard key={task.id}>
+           <li>{task.name}</li>
+           <li>{task.repeatOption}</li>
+           </TaskCard>
+        })}
            <p>{data.location && data.location.name}</p>
           <p>{data.location && data.location.localtime}</p>
           <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
@@ -316,6 +346,7 @@ return (
     name="weather"
     id="weather"
     onChange={handleWeatherChange}
+    defaultValue="off"
   />
 
   {showWeatherOptions && (
@@ -328,6 +359,7 @@ return (
           value="goodWeather"
           checked={weatherOption === 'goodWeather'}
           onChange={handleWeatherOptionChange}
+          defaultChecked
         />{" "}
         Good Weather
       </label>
@@ -347,6 +379,7 @@ return (
 
   <label htmlFor="allDay">All Day?</label>
   <input
+    defaultValue="on"
     defaultChecked
     type="checkbox"
     name="allDay"
@@ -364,6 +397,7 @@ return (
           value="morning"
           checked={timeOption === 'morning'}
           onChange={handleTimeOptionChange}
+          defaultChecked
         />{" "}
         Morning
       </label>
@@ -420,6 +454,7 @@ return (
     name="repeat"
     id="repeat"
     onChange={handleRepeatChange}
+    defaultValue="off"
   />
 
   {showRepeatOptions && (
@@ -432,6 +467,7 @@ return (
           value="daily"
           checked={repeatOption === 'daily'}
           onChange={handleRepeatOptionChange}
+          
         />{" "}
         Daily
       </label>
