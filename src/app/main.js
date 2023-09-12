@@ -1,6 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import {
+  Modal, 
+  ModalContent, 
+  ModalHeader, 
+  ModalBody, 
+  ModalFooter,
+  useDisclosure,
+  Button,
+  Radio,
+  RadioGroup
+} from "@nextui-org/react";
 import requestWeather from "./API/Request";
 import styled from "styled-components";
 import handleLogout from "@/service/logout";
@@ -16,11 +27,113 @@ const MainDiv = styled.div`
   min-height: 100vh;
 `;
 
+const RadioStyle = styled.div`
+display:flex;
+
+label {
+  margin-left: 1rem;
+}
+
+`
+
+const BackDropper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2rem);
+  z-index:-1;
+`;
+
+const StyledModal = styled(Modal)`
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+border: 3px solid black;
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: lightgray;
+  border-radius: 10px;
+  padding: 20px;
+  gap:3rem;
+
+`;
+
+const NoRadio = styled.input`
+  display: none
+`
+
+const SettingsButton = styled.button`
+position: absolute;
+top:0;
+left: 0;
+  background-color: #000000;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+`;
+const AddButton = styled.button`
+position: absolute;
+top:0;
+right: 0;
+  background-color: #000000;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  text-align: center;
+  
+
+`;
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+`;
+
+
 export default function Main({ user }) {
   const [city, setCity] = useState(null);
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
-  const [userCity, setUserCity] = useState(null); // State to store user's city
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [settings, setSettings] = useState(false);
+  const [add, setAdd] = useState(false);
+  const [showWeatherOptions, setShowWeatherOptions] = useState(false);
+  const [showTimeOptions, setShowTimeOptions] = useState(false);
+  const [showRepeatOptions, setShowRepeatOptions] = useState(false);
+  
+
+  const [weatherOption, setWeatherOption] = useState('goodWeather');
+
+  const [timeOption, setTimeOption] = useState('morning');
+ 
+  const [repeatOption, setRepeatOption] = useState('daily');
+
 
   useEffect(() => {
     // Define an asynchronous function to fetch data
@@ -38,7 +151,7 @@ export default function Main({ user }) {
         setData(weatherData); // Update the state with fetched data
       } catch (error) {
         console.error("Error fetching weather data:", error);
-        if (error.code === 1006) {
+        if (error.code === 1006 || error.code === 400) {
           setData(null);
           setError(true);
         }
@@ -53,21 +166,65 @@ export default function Main({ user }) {
     // Replace 'fetchUserCityFromDatabase' with the actual function to fetch the user's city
   }, [city, user.email]);
 
-  function HandleChangeCity(e) {
-    e.preventDefault();
- 
-    setCity(e.target.city.value);
-    writeToDatabase(user.email, e.target.city.value);
-  }
+function HandleSubmitTask(e) {
+  e.preventDefault();
+}
 
-  if (!userCity) {
-    // If the user's city is not found in the database
-    return (
-      <>
-        <MainDiv>
-          <h1>Weather To Do</h1>
-          <h1>Hello, {user.displayName}</h1>
-          <h2>Welcome, new user! Please choose your city:</h2>
+  async function HandleChangeCity(e) {
+    e.preventDefault();
+    const newCity = e.target.city.value;
+  
+    try {
+      // Attempt to fetch weather data for the new city
+      const weatherData = await requestWeather(newCity);
+  
+      if (weatherData.error) {
+        // If the city is not recognized by the API, set the error state to true
+        setError(true);
+      } else {
+        // If the city is recognized, update the state and clear the error
+        setData(weatherData);
+        setError(false);
+        setCity(newCity);
+        // Write the new city to the database
+        writeToDatabase(user.email, newCity);
+      }
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+  
+      // If there is an error while fetching data, set the error state to true
+      setError(true);
+    }
+  }
+  
+console.log("data",data)
+
+const handleWeatherChange = (e) => {
+  setShowWeatherOptions(e.target.checked);
+};
+const handleRepeatOptionChange = (e) => {
+  setRepeatOption(e.target.value);
+};
+const handleAllDayChange = (e) => {
+  setShowTimeOptions(!e.target.checked);
+};
+const handleWeatherOptionChange = (e) => {
+  setWeatherOption(e.target.value);
+};
+const handleTimeOptionChange = (e) => {
+  setTimeOption(e.target.value);
+};
+const handleRepeatChange = (e) => {
+  setShowRepeatOptions(e.target.checked);
+}
+
+if (!city || !data) {
+  // If the user's city is not found in the database or data is not available
+  return (
+    <StyledModal backdrop="blur" isOpen={true} onOpenChange={onOpenChange}>
+      <ModalContent>
+        <ModalHeader>Welcome {user.displayName}...</ModalHeader>
+        <div>
           <form onSubmit={(e) => HandleChangeCity(e)}>
             <input
               required
@@ -75,42 +232,238 @@ export default function Main({ user }) {
               name="city"
               placeholder="City"
             ></input>
-            {error && <p>City not found</p>}
             <button type="submit">Search</button>
           </form>
-          <button onClick={() => handleLogout()}>Logout</button>
-        </MainDiv>
-      </>
-    );
-  }
-
-  // If the user's city is found in the database
-  return (
-    <>
-      <MainDiv>
-        <h1>Hello, {user.displayName}</h1>
-        <h1>Weather To Do</h1>
-        {data && (
-          <>
-            <p>{data.location.name}</p>
-            <p>{data.location.localtime}</p>
-            <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
-            <p>{data.forecast.forecastday[0].day.condition.text}</p>
-            <Image
-              src={"https://" + data.forecast.forecastday[0].day.condition.icon}
-              width={150}
-              height={150}
-              alt="icon"
-            />
-          </>
-        )}
-        <form onSubmit={(e) => HandleChangeCity(e)}>
-          <input required type="text" name="city" placeholder="City"></input>
-          {error && <p>City not found</p>}
-          <button type="submit">Search</button>
-        </form>
+        </div>
+            {error && <ErrorMessage>City not found</ErrorMessage>}
         <button onClick={() => handleLogout()}>Logout</button>
-      </MainDiv>
-    </>
+      </ModalContent>
+    </StyledModal>
   );
 }
+
+// If the user's city is found in the database and data is available
+return (
+  <>
+    <MainDiv>
+      <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
+      <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
+      {data && (
+        <>
+           <p>{data.location && data.location.name}</p>
+          <p>{data.location && data.location.localtime}</p>
+          <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
+          <p>{data.forecast.forecastday[0].day.condition.text}</p>
+          <Image
+            src={"https://" + data.forecast.forecastday[0].day.condition.icon}
+            width={150}
+            height={150}
+            alt="icon"
+          />
+        </>
+      )}
+    </MainDiv>
+    {settings && (
+      <BackDropper>
+      <StyledModal backdrop="blur" isOpen={settings} onOpenChange={setSettings} onClose={setSettings}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">chosen City: {city}</ModalHeader>
+              <ModalBody>
+                <form onSubmit={(e) => HandleChangeCity(e)}>
+                  <input
+                    required
+                    type="text"
+                    name="city"
+                    placeholder="City"
+                  ></input>
+                 
+                  <button type="submit">Search</button>
+                </form>
+                {error && <ErrorMessage>City not found</ErrorMessage>}
+                <button onClick={() => handleLogout()}>Logout</button>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </StyledModal>
+      </BackDropper>
+    )}
+        {add && (
+          <BackDropper>
+      <StyledModal backdrop="blur" isOpen={add} onOpenChange={setAdd} onClose={setAdd}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader >Enter new Task</ModalHeader>
+              <ModalBody>
+              <StyledForm onSubmit={HandleSubmitTask}>
+  <input required type="text" name="name" placeholder="Taskname" />
+
+  <label htmlFor="weather">Depends on weather?</label>
+  <input
+    type="checkbox"
+    name="weather"
+    id="weather"
+    onChange={handleWeatherChange}
+  />
+
+  {showWeatherOptions && (
+    <div>
+      <label htmlFor="goodWeather" style={{ color: weatherOption === 'goodWeather' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="goodWeather"
+          name="weatherOption"
+          value="goodWeather"
+          checked={weatherOption === 'goodWeather'}
+          onChange={handleWeatherOptionChange}
+        />{" "}
+        Good Weather
+      </label>
+      <label htmlFor="badWeather" style={{ color: weatherOption === 'badWeather' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="badWeather"
+          name="weatherOption"
+          value="badWeather"
+          checked={weatherOption === 'badWeather'}
+          onChange={handleWeatherOptionChange}
+        />{" "}
+        Bad Weather
+      </label>
+    </div>
+  )}
+
+  <label htmlFor="allDay">All Day?</label>
+  <input
+    defaultChecked
+    type="checkbox"
+    name="allDay"
+    id="allDay"
+    onChange={handleAllDayChange}
+  />
+
+  {showTimeOptions && (
+    <div>
+      <label htmlFor="morning" style={{ color: timeOption === 'morning' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="morning"
+          name="timeOption"
+          value="morning"
+          checked={timeOption === 'morning'}
+          onChange={handleTimeOptionChange}
+        />{" "}
+        Morning
+      </label>
+      <label htmlFor="noon" style={{ color: timeOption === 'noon' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="noon"
+          name="timeOption"
+          value="noon"
+          checked={timeOption === 'noon'}
+          onChange={handleTimeOptionChange}
+        />{" "}
+        Noon
+      </label>
+      <label htmlFor="afternoon" style={{ color: timeOption === 'afternoon' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="afternoon"
+          name="timeOption"
+          value="afternoon"
+          checked={timeOption === 'afternoon'}
+          onChange={handleTimeOptionChange}
+        />{" "}
+        Afternoon
+      </label>
+      <label htmlFor="evening" style={{ color: timeOption === 'evening' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="evening"
+          name="timeOption"
+          value="evening"
+          checked={timeOption === 'evening'}
+          onChange={handleTimeOptionChange}
+        />{" "}
+        Evening
+      </label>
+      <label htmlFor="night" style={{ color: timeOption === 'night' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="night"
+          name="timeOption"
+          value="night"
+          checked={timeOption === 'night'}
+          onChange={handleTimeOptionChange}
+        />{" "}
+        Night
+      </label>
+    </div>
+  )}
+
+  <label htmlFor="repeat">Repeat?</label>
+  <input
+    type="checkbox"
+    name="repeat"
+    id="repeat"
+    onChange={handleRepeatChange}
+  />
+
+  {showRepeatOptions && (
+    <div>
+      <label htmlFor="daily" style={{ color: repeatOption === 'daily' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="daily"
+          name="repeatOption"
+          value="daily"
+          checked={repeatOption === 'daily'}
+          onChange={handleRepeatOptionChange}
+        />{" "}
+        Daily
+      </label>
+      <label htmlFor="weekly" style={{ color: repeatOption === 'weekly' ? 'green' : 'black' }}>
+        <NoRadio
+          type="radio"
+          id="weekly"
+          name="repeatOption"
+          value="weekly"
+          checked={repeatOption === 'weekly'}
+          onChange={handleRepeatOptionChange}
+        />{" "}
+        Weekly
+      </label>
+      {/* Add other repeat options here */}
+    </div>
+  )}
+
+  <button type="submit">Submit</button>
+</StyledForm>
+
+
+                {error && <ErrorMessage>City not found</ErrorMessage>}
+                <button onClick={() => handleLogout()}>Logout</button>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </StyledModal>
+      </BackDropper>
+    )}
+  </>
+);
+          }
