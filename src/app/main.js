@@ -37,6 +37,32 @@ label {
 }
 `
 
+const TaskBoard = styled.div`
+display:grid;
+
+@media screen and (min-width: 768px) {
+  
+  grid-template-columns: repeat(4, 25%);
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+}
+@media screen and (min-width: 450px) and (max-width: 768px) {
+  
+  grid-template-columns: repeat(3, 33%);
+  grid-template-rows: 1fr 1fr 1fr;
+}
+
+@media screen and (max-width: 350px) {
+  
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+
+grid-gap: 1rem;
+`
+
+
+
 const TaskCard = styled.ul`
   display: flex;
   flex-direction: column;
@@ -314,6 +340,7 @@ return (
     <MainDiv>
       <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
       <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
+      <TaskBoard>
       {allTasks.length > 0 && (
         <>
         {allTasks.map((task) => {
@@ -322,18 +349,19 @@ return (
            <li>{task.repeatOption}</li>
            </TaskCard>
         })}
-           <p>{data.location && data.location.name}</p>
-          <p>{data.location && data.location.localtime}</p>
-          <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
-          <p>{data.forecast.forecastday[0].day.condition.text}</p>
-          <Image
-            src={"https://" + data.forecast.forecastday[0].day.condition.icon}
-            width={150}
-            height={150}
-            alt="icon"
-          />
         </>
       )}
+      </TaskBoard>
+      <p>{data.location && data.location.name}</p>
+     <p>{data.location && data.location.localtime}</p>
+     <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
+     <p>{data.forecast.forecastday[0].day.condition.text}</p>
+     <Image
+       src={"https://" + data.forecast.forecastday[0].day.condition.icon}
+       width={150}
+       height={150}
+       alt="icon"
+     />
     </MainDiv>
     {settings && (
       <BackDropper>
