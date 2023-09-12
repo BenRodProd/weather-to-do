@@ -191,12 +191,50 @@ export default function Main({ user }) {
   },[])
 
 
-function HandleSubmitTask(e) {
-  e.preventDefault();
-  console.log(e.target.name.value, e.target.weather.value, e.target.weatherOption.value, e.target.allDay.value, e.target.timeOption.value, e.target.repeat.value, repeatOption, user.email)
-  writeTaskToDatabase(e.target.name.value, e.target.weather.value, e.target.weatherOption.value, e.target.allDay.value, e.target.timeOption.value, e.target.repeat.value, repeatOption, user.email)
-  e.target.reset();
-}
+
+
+  function HandleSubmitTask(e) {
+    e.preventDefault();
+  
+    // Initialize variables with default values
+    let weatherOptionValue = "any weather";
+    let timeOptionValue = "all day";
+    let repeatOptionValue = "no repeat";
+  
+    // Check the state of "allDay," "weather," and "repeat" checkboxes and set variables accordingly
+    if (e.target.allDay.checked) {
+      timeOptionValue = "all day";
+    }
+  
+    if (!showWeatherOptions || !e.target.weather.checked) {
+      weatherOptionValue = "any weather";
+    }
+  
+    if (!e.target.repeat.checked) {
+      repeatOptionValue = "no repeat";
+    }
+  
+ 
+  
+    // Pass the variables to the writeTaskToDatabase function
+    writeTaskToDatabase(
+      e.target.name.value,
+      e.target.weather.value,
+      weatherOptionValue,
+      e.target.allDay.value,
+      timeOptionValue,
+      e.target.repeat.value,
+      repeatOptionValue,
+      user.email
+    );
+  
+    // Reset the form
+    e.target.reset();
+    fetchUserTasksFromFirestore(user.email)
+  .then((tasks) => {
+   
+      setAllTasks(tasks)})
+  }
 
   async function HandleChangeCity(e) {
     e.preventDefault();
