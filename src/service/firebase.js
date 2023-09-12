@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-const apiKey = `${process.env.API_KEY}`
 
 const firebaseConfig = {
   apiKey: process.env.API_KEY,
@@ -15,7 +14,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
-console.log("Config",firebaseConfig)
+
 // Access the auth module
 const auth = getAuth(firebaseApp);
 
@@ -23,5 +22,5 @@ const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
 export const signInWithGoogle = () => signInWithPopup(auth, provider);
-
+export { auth }
 export default firebaseApp;

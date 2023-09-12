@@ -3,7 +3,7 @@ import Image from "next/image";
 import requestWeather from "./API/Request"
 import styled from "styled-components"
 import { useEffect, useState } from "react"
-
+import handleLogout from "@/service/logout";
 
 const MainDiv = styled.div`
   display: flex;
@@ -13,10 +13,11 @@ const MainDiv = styled.div`
   padding: 8rem;
   min-height: 100vh;
 `;
-export default function Main() {
+export default function Main({user}) {
 const [city, setCity] = useState("münster")
 const [data, setData] = useState(null)
 const [error, setError] = useState(false)
+const [logoutPressed, setLogoutPressed] = useState(false)
 useEffect(() => {
   // Define an asynchronous function to fetch data
   async function fetchData() {
@@ -45,6 +46,7 @@ function HandleChangeCity(e) {
 if (!data || !data.location) {
   return( <>
   <MainDiv>
+   
    <h1>Weather To Do</h1>
   <h1>Please insert a city</h1>
   <form onSubmit ={(e) => HandleChangeCity(e)}>
@@ -60,6 +62,7 @@ if (!data || !data.location) {
   return (
  <>
  <MainDiv>
+ <h1>Hello {user.displayName}</h1>
   <h1>Weather To Do</h1>
     {data && 
     <>
@@ -75,6 +78,7 @@ if (!data || !data.location) {
      {error && <p>City not found</p>}
      <button type = "submit">Search</button>
      </form>
+     <button onClick={() => handleLogout()}>Logout</button>
      </MainDiv>
  </>
 )
