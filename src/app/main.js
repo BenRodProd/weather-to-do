@@ -166,11 +166,11 @@ export default function Main({ user }) {
   const [showTimeOptions, setShowTimeOptions] = useState(false);
   const [showRepeatOptions, setShowRepeatOptions] = useState(false);
   const [allTasks, setAllTasks] = useState([]);
-
+const [displayTasks, setDisplayTasks] = useState([]);
   const [weatherOption, setWeatherOption] = useState('goodWeather');
-
+const [currentTime, setCurrentTime] = useState('');
   const [timeOption, setTimeOption] = useState('morning');
- 
+ const [rainy, setRainy] = useState(false);
   const [repeatOption, setRepeatOption] = useState('daily');
 
 
@@ -188,6 +188,8 @@ export default function Main({ user }) {
       try {
         const weatherData = await requestWeather(city);
         setData(weatherData); // Update the state with fetched data
+        setRainy("forecast",weatherData.forecast.forecastday[0].day.condition.text.includes("rain"))
+
       } catch (error) {
         console.error("Error fetching weather data:", error);
         if (error.code === 1006 || error.code === 400) {
@@ -214,9 +216,33 @@ export default function Main({ user }) {
       
     })
   }
+
   },[])
 
+useEffect(() => {
+  let today = new Date();
+  if (today.getHours() > 7 && today.getHours() < 12) {
+    setCurrentTime("morning")
+  } else if (today.getHours() >= 12 && today.getHours() < 15) {
+    setCurrentTime("noon")
+  } else if (today.getHous() >= 15 && today.getHours() < 18) {
+    setCurrentTime("afternoon")
+  } else if (today.getHours() >= 18 && today.getHours() < 21) {
+    setCurrentTime("evening")
+  } else {
+    setCurrentTime("night")
+  }
+  
+ 
 
+  setDisplayTasks(allTasks.filter(task => {
+    return task.timeOption === currentTime || task.timeOption === "all day"
+  }).filter(task => {
+    return (task.weatherOption === "badWeather" && rainy) || (task.weatherOption === "goodWeather" && !rainy) || (task.weatherOption === "any weather")
+  }
+    )
+  )
+},[allTasks])
 
 
   function HandleSubmitTask(e) {
@@ -333,20 +359,28 @@ if (!city || !data) {
     </StyledModal>
   );
 }
-
+console.log("all tasks", allTasks, "time", currentTime, "display", displayTasks)
 // If the user's city is found in the database and data is available
+
+
+
+
+
+
 return (
   <>
     <MainDiv>
       <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
       <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
       <TaskBoard>
-      {allTasks.length > 0 && (
+      {displayTasks.length > 0 && (
         <>
-        {allTasks.map((task) => {
+        {displayTasks.map((task) => {
           return <TaskCard key={task.id}>
            <li>{task.name}</li>
            <li>{task.repeatOption}</li>
+           <li>{task.timeOption}</li>
+           <li>{task.weatherOption}</li>
            </TaskCard>
         })}
         </>
