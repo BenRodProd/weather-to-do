@@ -8,11 +8,11 @@ import {
   ModalBody, 
   ModalFooter,
   useDisclosure,
-  Button,
+  
   
 } from "@nextui-org/react";
 import requestWeather from "./API/Request";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import handleLogout from "@/service/logout";
 import writeToDatabase from "@/service/write";
 import fetchUserCityFromDatabase from "@/service/fetchCity";
@@ -20,16 +20,44 @@ import writeTaskToDatabase from "@/service/writeTask";
 import fetchUserTasksFromFirestore from "@/service/fetchTasks";
 import HandleDeleteTask from "@/service/deleteTask";
 
+const Zoom = keyframes`
+  0% {
+    opacity: 0;
+    z-index:2;
+    scale:2;
+    width:200%;
+    height:200%
+  }
+  100% {
+    opacity: 1;
+    z-index:0;
+    scale:1;
+    width:85%;
+    height:85%;
+  }
+`;
 
+const Button = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid black;
+  border-radius: 10px;
+  background-color: white;
+  cursor: pointer;
+  user-select: none;
+`;
 
 const MainDiv = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 8rem;
-  height: 100vh;
-  width: 100vw;
+  
+  height: 100%;
+  width: 100%;
 `;
 
 const RadioStyle = styled.div`
@@ -43,8 +71,13 @@ label {
 
 const TaskBoard = styled.div`
 display:grid;
-width:100%;
+postion:absolute;
+align-self:center;
 
+width:80%;
+height:70vh;
+
+overflow-y: auto;
 @media screen and (min-width: 768px) {
   
   grid-template-columns: repeat(4, 25%);
@@ -56,14 +89,14 @@ width:100%;
   grid-template-rows: 1fr 1fr 1fr;
 }
 
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 400px) {
   
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
 }
+grid-gap: 2rem;
 
 
-grid-gap: 1rem;
 `
 
 
@@ -78,6 +111,7 @@ const TaskCard = styled.ul`
   border-radius: 10px;
   list-style: none;
   margin: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
 `
 
 const BackDropper = styled.div`
@@ -86,9 +120,9 @@ const BackDropper = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(2rem);
-  z-index:-1;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(7px);
+  z-index:0;
 `;
 
 const StyledModal = styled(Modal)`
@@ -106,7 +140,32 @@ border: 3px solid black;
   padding: 20px;
   gap:3rem;
   user-select: none;
+  z-index:1;
+  text-align: center;
 `;
+
+const StyledModalFooter = styled(ModalFooter)`
+  display:flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const BackgroundImage = styled(Image)`
+position:absolute;
+top:50%;
+left:50%;
+transform: translate(-50%, -50%);
+width:85%;
+height:85%;
+
+z-index:-1;
+object-fit: cover;
+
+border: 10px solid burlywood;
+
+animation: ${Zoom} 1s ease-in;
+
+`
 
 const NoRadio = styled.input`
   display: none;
@@ -161,10 +220,18 @@ const StyledForm = styled.form`
 
 const CurrentMessage = styled.div`
   display: flex;
+  font-size: 0.8rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  margin: 4rem 2rem 0 2rem;
+  text-align: center;
+  color: antiquewhite;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid black;
+  border-radius: 10px;
+  text-shadow: 2px 2px 8px #000000; 
 `;
 
 
@@ -187,8 +254,8 @@ export default function Main({ user }) {
   const [rainy, setRainy] = useState(false);
   const [allTasks, setAllTasks] = useState([]);
   const [displayTasks, setDisplayTasks] = useState([]);
-
-
+  const [selectedTask, setSelectedTask] = useState(null);
+const [backgroundImageSrc, setBackgroundImageSrc] = useState("");
   useEffect(() => {
     // Define an asynchronous function to fetch data
     fetchUserCityFromDatabase(user.email)
@@ -205,6 +272,18 @@ export default function Main({ user }) {
         setData(weatherData); // Update the state with fetched data
         setRainy(weatherData.current.condition.text.includes("rain"))
         
+        if (rainy) {
+          const randomImageNumber = Math.floor(Math.random() * 3);
+          setBackgroundImageSrc(
+            `/assets/rain${randomImageNumber}.webp`
+          )
+        } else {
+          const randomImageNumber= Math.floor(Math.random() * 7);
+          setBackgroundImageSrc(
+            `/assets/sun${randomImageNumber}.webp`
+          )
+        }
+
       } catch (error) {
         
         if (error.code === 1006 || error.code === 400) {
@@ -240,7 +319,7 @@ useEffect(() => {
     setCurrentTime("morning")
   } else if (today.getHours() >= 12 && today.getHours() < 15) {
     setCurrentTime("noon")
-  } else if (today.getHous() >= 15 && today.getHours() < 18) {
+  } else if (today.getHours() >= 15 && today.getHours() < 18) {
     setCurrentTime("afternoon")
   } else if (today.getHours() >= 18 && today.getHours() < 21) {
     setCurrentTime("evening")
@@ -374,6 +453,17 @@ const handleRepeatChange = (e) => {
   setShowRepeatOptions(e.target.checked);
 }
 
+const randomTask = () => {
+  if (displayTasks.length > 0) {
+    // Randomly select a task index
+    const randomIndex = Math.floor(Math.random() * displayTasks.length);
+    const task = displayTasks[randomIndex];
+    setSelectedTask(task);
+console.log(displayTasks[randomIndex], task, randomIndex, selectedTask)
+  }
+};
+
+
 if (!city || !data) {
   // If the user's city is not found in the database or data is not available
   return (
@@ -411,7 +501,7 @@ return (
       <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
       <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
       <CurrentMessage>
-        <h1>In the moment {rainy ? "it could be rainy" : "it is not rainy"}</h1>
+        <h2>In the moment {rainy ? "it could be rainy" : "it is not rainy"}</h2>
         {displayTasks.length > 0 ? <h2>For this {currentTime} you have {displayTasks.length > 1 ? "these tasks to choose from:" : "this task to do:"}</h2> : "You have no tasks for now"}
       </CurrentMessage>
       <TaskBoard>
@@ -419,30 +509,25 @@ return (
         <>
         {displayTasks.map((task) => {
           return <TaskCard key={task.id}>
-           <li>{task.name}</li>
-           <li>{task.repeatOption}</li>
+           <li><h2>{task.name}</h2></li>
+           <hr width="100%" color="black" size="10px" align="center" />
+           <br></br>
            <li>{task.timeOption}</li>
            <li>{task.weatherOption}</li>
-           <button onClick={() => DeleteTask(task.id)}>Delete</button>
+           <br/>
+           <Button onClick={() => DeleteTask(task.id)}>Delete</Button>
            </TaskCard>
         })}
         </>
       )}
       </TaskBoard>
-      <p>{data.location && data.location.name}</p>
-     <p>{data.location && data.location.localtime}</p>
-     <p>Max Temp: {data.forecast.forecastday[0].day.maxtemp_c}</p>
-     <p>{data.forecast.forecastday[0].day.condition.text}</p>
-     <Image
-       src={"https://" + data.forecast.forecastday[0].day.condition.icon}
-       width={150}
-       height={150}
-       alt="icon"
-     />
+      <BackgroundImage alt="backgroundimage" height="1024" width="1024" src={backgroundImageSrc}></BackgroundImage>
+      <Button onClick={()=> randomTask()}>I can not decide</Button>
+      
     </MainDiv>
     {settings && (
       <BackDropper>
-      <StyledModal backdrop="blur" isOpen={settings} onOpenChange={setSettings} onClose={setSettings}>
+      <StyledModal isOpen={settings} onOpenChange={setSettings} onClose={setSettings}>
         <ModalContent>
           {(onClose) => (
             <>
@@ -459,10 +544,10 @@ return (
                   <button type="submit">Search</button>
                 </form>
                 {error && <ErrorMessage>City not found</ErrorMessage>}
-                <button onClick={() => handleLogout()}>Logout</button>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button onClick={() => handleLogout()}>Logout</Button>
+                <Button color="danger" variant="light" onClick={()=> setSettings(false)}>
                   Close
                 </Button>
               </ModalFooter>
@@ -634,19 +719,47 @@ return (
 
 
                 {error && <ErrorMessage>City not found</ErrorMessage>}
-                <button onClick={() => handleLogout()}>Logout</button>
               </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+              <StyledModalFooter>
+                
+                <Button color="danger" variant="light" onClick={()=>{setAdd(false)}}>
                   Close
                 </Button>
-              </ModalFooter>
+              </StyledModalFooter>
             </>
           )}
         </ModalContent>
       </StyledModal>
       </BackDropper>
     )}
+     {selectedTask && (
+      <BackDropper>
+        <StyledModal isOpen={true} onClose={() => setSelectedTask(null)}>
+          <ModalContent>
+            <ModalHeader>I have picked this task for you:</ModalHeader>
+            <ModalBody>
+              {/* Display the selected task details here */}
+              <div>
+              <hr></hr>
+                <h2>{selectedTask.name}</h2>
+                <br></br>
+                <hr></hr>
+                <p>Get it going!</p>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color="primary"
+                variant="light"
+                onClick={() => setSelectedTask(null)}
+              >
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </StyledModal>
+        </BackDropper>
+      )}
   </>
 );
           }
