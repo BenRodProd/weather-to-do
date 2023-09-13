@@ -9,8 +9,7 @@ import {
   ModalFooter,
   useDisclosure,
   Button,
-  Radio,
-  RadioGroup
+  
 } from "@nextui-org/react";
 import requestWeather from "./API/Request";
 import styled from "styled-components";
@@ -19,13 +18,18 @@ import writeToDatabase from "@/service/write";
 import fetchUserCityFromDatabase from "@/service/fetchCity";
 import writeTaskToDatabase from "@/service/writeTask";
 import fetchUserTasksFromFirestore from "@/service/fetchTasks";
+import HandleDeleteTask from "@/service/deleteTask";
+
+
+
 const MainDiv = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 8rem;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
 `;
 
 const RadioStyle = styled.div`
@@ -39,6 +43,7 @@ label {
 
 const TaskBoard = styled.div`
 display:grid;
+width:100%;
 
 @media screen and (min-width: 768px) {
   
@@ -154,6 +159,14 @@ const StyledForm = styled.form`
   gap: 1rem;
 `;
 
+const CurrentMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+`;
+
 
 export default function Main({ user }) {
   const [city, setCity] = useState(null);
@@ -165,13 +178,15 @@ export default function Main({ user }) {
   const [showWeatherOptions, setShowWeatherOptions] = useState(false);
   const [showTimeOptions, setShowTimeOptions] = useState(false);
   const [showRepeatOptions, setShowRepeatOptions] = useState(false);
-  const [allTasks, setAllTasks] = useState([]);
-const [displayTasks, setDisplayTasks] = useState([]);
-  const [weatherOption, setWeatherOption] = useState('goodWeather');
-const [currentTime, setCurrentTime] = useState('');
+  const [weatherOption, setWeatherOption] = useState('good weather');
   const [timeOption, setTimeOption] = useState('morning');
- const [rainy, setRainy] = useState(false);
   const [repeatOption, setRepeatOption] = useState('daily');
+  const [allDayChecked, setAllDayChecked] = useState(true);
+  const [weatherChecked, setWeatherChecked] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
+  const [rainy, setRainy] = useState(false);
+  const [allTasks, setAllTasks] = useState([]);
+  const [displayTasks, setDisplayTasks] = useState([]);
 
 
   useEffect(() => {
@@ -182,16 +197,16 @@ const [currentTime, setCurrentTime] = useState('');
         setCity(city);
       })
       .catch((error) => {
-        console.error("Error fetching user's city:", error);
+       
       });
     async function fetchData() {
       try {
         const weatherData = await requestWeather(city);
         setData(weatherData); // Update the state with fetched data
-        setRainy("forecast",weatherData.forecast.forecastday[0].day.condition.text.includes("rain"))
-
+        setRainy(weatherData.current.condition.text.includes("rain"))
+        
       } catch (error) {
-        console.error("Error fetching weather data:", error);
+        
         if (error.code === 1006 || error.code === 400) {
           setData(null);
           setError(true);
@@ -238,33 +253,42 @@ useEffect(() => {
   setDisplayTasks(allTasks.filter(task => {
     return task.timeOption === currentTime || task.timeOption === "all day"
   }).filter(task => {
-    return (task.weatherOption === "badWeather" && rainy) || (task.weatherOption === "goodWeather" && !rainy) || (task.weatherOption === "any weather")
+    return (task.weatherOption === "bad weather" && rainy) || (task.weatherOption === "good weather" && !rainy) || (task.weatherOption === "any weather")
   }
     )
   )
-},[allTasks])
 
 
-  function HandleSubmitTask(e) {
-    e.preventDefault();
-  
-    // Initialize variables with default values
-    let weatherOptionValue = "any weather";
-    let timeOptionValue = "all day";
-    let repeatOptionValue = "no repeat";
-  
-    // Check the state of "allDay," "weather," and "repeat" checkboxes and set variables accordingly
-    if (e.target.allDay.checked) {
-      timeOptionValue = "all day";
-    }
-  
-    if (!showWeatherOptions || !e.target.weather.checked) {
-      weatherOptionValue = "any weather";
-    }
-  
-    if (!e.target.repeat.checked) {
-      repeatOptionValue = "no repeat";
-    }
+  console.log(allTasks, data)
+},[allTasks, data])
+
+
+function HandleSubmitTask(e) {
+  e.preventDefault();
+
+  // Initialize variables with default values
+  let weatherOptionValue = "any weather";
+  let timeOptionValue = "all day";
+  let repeatOptionValue = "no repeat";
+
+  // Check the state of "allDay," "weather," and "repeat" checkboxes and set variables accordingly
+  if (e.target.allDay.checked) {
+    timeOptionValue = "all day";
+  } else {
+    timeOptionValue = e.target.timeOption.value;
+  }
+
+  if (!showWeatherOptions || !e.target.weather.checked) {
+    weatherOptionValue = "any weather";
+  } else if (showWeatherOptions) {
+    weatherOptionValue = e.target.weatherOption.value;
+  }
+
+  if (!e.target.repeat.checked) {
+    repeatOptionValue = "no repeat";
+  } else if (showRepeatOptions) {
+    repeatOptionValue = e.target.repeatOption.value;
+  }
   
  
   
@@ -283,9 +307,15 @@ useEffect(() => {
     // Reset the form
     e.target.reset();
     fetchUserTasksFromFirestore(user.email)
-  .then((tasks) => {
-   
+    .then((tasks) => {
+      
       setAllTasks(tasks)})
+      
+      setShowRepeatOptions(false);
+      setShowTimeOptions(false);
+      setShowWeatherOptions(false);
+      setAllDayChecked(true);
+      setWeatherChecked(false);
   }
 
   async function HandleChangeCity(e) {
@@ -308,23 +338,31 @@ useEffect(() => {
         writeToDatabase(user.email, newCity);
       }
     } catch (error) {
-      console.error("Error fetching weather data:", error);
+      
   
       // If there is an error while fetching data, set the error state to true
       setError(true);
     }
   }
   
-
+async function DeleteTask(id) {
+  await HandleDeleteTask(id);
+  fetchUserTasksFromFirestore(user.email)
+  .then((tasks) => {
+    setAllTasks(tasks)
+  })
+}
 
 const handleWeatherChange = (e) => {
   setShowWeatherOptions(e.target.checked);
+  setWeatherChecked(e.target.checked);
 };
 const handleRepeatOptionChange = (e) => {
   setRepeatOption(e.target.value);
 };
 const handleAllDayChange = (e) => {
   setShowTimeOptions(!e.target.checked);
+  setAllDayChecked(e.target.checked);
 };
 const handleWeatherOptionChange = (e) => {
   setWeatherOption(e.target.value);
@@ -359,7 +397,7 @@ if (!city || !data) {
     </StyledModal>
   );
 }
-console.log("all tasks", allTasks, "time", currentTime, "display", displayTasks)
+
 // If the user's city is found in the database and data is available
 
 
@@ -372,6 +410,10 @@ return (
     <MainDiv>
       <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
       <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
+      <CurrentMessage>
+        <h1>In the moment {rainy ? "it could be rainy" : "it is not rainy"}</h1>
+        {displayTasks.length > 0 ? <h2>For this {currentTime} you have {displayTasks.length > 1 ? "these tasks to choose from:" : "this task to do:"}</h2> : "You have no tasks for now"}
+      </CurrentMessage>
       <TaskBoard>
       {displayTasks.length > 0 && (
         <>
@@ -381,6 +423,7 @@ return (
            <li>{task.repeatOption}</li>
            <li>{task.timeOption}</li>
            <li>{task.weatherOption}</li>
+           <button onClick={() => DeleteTask(task.id)}>Delete</button>
            </TaskCard>
         })}
         </>
@@ -446,30 +489,30 @@ return (
     name="weather"
     id="weather"
     onChange={handleWeatherChange}
-    defaultValue="off"
+   checked={weatherChecked}
   />
 
   {showWeatherOptions && (
     <div>
-      <label htmlFor="goodWeather" style={{ color: weatherOption === 'goodWeather' ? 'green' : 'black' }}>
+      <label htmlFor="goodWeather" style={{ color: weatherOption === 'good weather' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
           id="goodWeather"
           name="weatherOption"
-          value="goodWeather"
-          checked={weatherOption === 'goodWeather'}
+          value="good weather"
+          checked={weatherOption === 'good weather'}
           onChange={handleWeatherOptionChange}
-          defaultChecked
+          
         />{" "}
         Good Weather
       </label>
-      <label htmlFor="badWeather" style={{ color: weatherOption === 'badWeather' ? 'green' : 'black' }}>
+      <label htmlFor="badWeather" style={{ color: weatherOption === 'bad weather' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
           id="badWeather"
           name="weatherOption"
-          value="badWeather"
-          checked={weatherOption === 'badWeather'}
+          value="bad weather"
+          checked={weatherOption === 'bad weather'}
           onChange={handleWeatherOptionChange}
         />{" "}
         Bad Weather
@@ -479,8 +522,8 @@ return (
 
   <label htmlFor="allDay">All Day?</label>
   <input
-    defaultValue="on"
-    defaultChecked
+    
+    checked={allDayChecked}
     type="checkbox"
     name="allDay"
     id="allDay"
@@ -497,7 +540,7 @@ return (
           value="morning"
           checked={timeOption === 'morning'}
           onChange={handleTimeOptionChange}
-          defaultChecked
+          
         />{" "}
         Morning
       </label>
@@ -554,7 +597,7 @@ return (
     name="repeat"
     id="repeat"
     onChange={handleRepeatChange}
-    defaultValue="off"
+    
   />
 
   {showRepeatOptions && (

@@ -11,14 +11,7 @@ export default async function writeTaskToDatabase(
   repeatOption,
   user
 ) {
-    console.log(name,
-        dependsOnWeather,
-        weatherOption,
-        isAllDay,
-        timeOption,
-        doesRepeat,
-        repeatOption,
-        user)
+
   try {
     // Define the Firestore collection reference
     const todosCollectionRef = collection(firestore, 'todos');
@@ -35,8 +28,8 @@ export default async function writeTaskToDatabase(
       user
     });
 
-    console.log('Data written to Firestore');
+ 
   } catch (error) {
-    console.error('Error writing to Firestore:', error);
+   
   }
 }

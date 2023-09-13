@@ -14,7 +14,7 @@ export default function Home() {
         // User is signed in
         setUser(user); // Set the user object
         setLoggedIn(true);
-        console.log(user, loggedIn);
+       
       } else {
         // User is signed out
         setUser(null); // Clear the user object

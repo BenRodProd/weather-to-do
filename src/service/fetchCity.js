@@ -9,7 +9,7 @@ async function fetchUserCityFromFirestore(userEmail) {
     
     if (docSnapshot.exists()) {
       const userData = docSnapshot.data();
-      console.log(userData);
+      
       return userData.city; // Assuming the user's city is stored in a field called 'city'
     } else {
       return null; // Return null if the user's document is not found
