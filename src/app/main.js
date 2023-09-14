@@ -38,6 +38,18 @@ const Zoom = keyframes`
   }
 `;
 
+const StyledInput = styled.input`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid black;
+  border-radius: 10px;
+  background-color: white;
+  cursor: pointer;
+  user-select: none;
+`;
 const Button = styled.button`
   display: flex;
   justify-content: center;
@@ -344,36 +356,56 @@ useEffect(() => {
   setDisplayTasks(
     allTasks.filter((task) => {
     
-      // Check if the task matches the current time of day or is set to "egal wann"
       const isTimeOptionMatch =
         task.timeOption === currentTime || task.timeOption === 'egal wann';
-      console.log("timeOption", isTimeOptionMatch)
-      // Check if the task matches the current weather conditions or is set to "jedes Wetter"
+       
       const isWeatherOptionMatch =
         (task.weatherOption === 'schlechtes Wetter' && rainy) ||
         (task.weatherOption === 'gutes Wetter' && !rainy) ||
         task.weatherOption === 'jedes Wetter';
-        console.log("WeatherOption", isWeatherOptionMatch)
-      if (task.doesRepeat === 'on') {
-        if (task.repeatOption === 'täglich') {
-          // Check if a day has passed since the task was last done (if "done" field exists)
-          const lastDoneDate = task.done?.toDate(); // Using optional chaining
-          const oneDayAgo = new Date(now);
-          oneDayAgo.setDate(now.getDate() - 1); // Subtract one day
-          return !lastDoneDate || lastDoneDate <= oneDayAgo;
-        } else if (task.repeatOption === 'wöchentlich') {
-          // Check if a week has passed since the task was last done (if "done" field exists)
-          const lastDoneDate = task.done?.toDate(); // Using optional chaining
-          const oneWeekAgo = new Date(now);
-          oneWeekAgo.setDate(now.getDate() - 7); // Subtract one week
-          return !lastDoneDate || lastDoneDate <= oneWeekAgo;
+
+  if (
+    task.repeatOption === 'no repeat' &&
+    task.weatherOption === 'jedes Wetter' &&
+    task.timeOption === 'egal wann'
+    
+  ) {
+    // Additional criteria for tasks with doesRepeat "off," weatherOption "jedes Wetter," and timeOption "egal wann"
+
+    return true;
+  } else if (isTimeOptionMatch && isWeatherOptionMatch) {
+        // Only consider tasks that match both time and weather options
+        if (task.repeatOption !== 'no repeat') {
+       
+          if (task.repeatOption === 'täglich') {
+            const lastDoneDate = task.done?.toDate();
+            const oneDayAgo = new Date(now);
+            oneDayAgo.setDate(now.getDate() - 1);
+           
+           
+         
+            return !lastDoneDate || lastDoneDate <= oneDayAgo;
+          } else if (task.repeatOption === 'wöchentlich') {
+            const lastDoneDate = task.done?.toDate();
+            const oneWeekAgo = new Date(now);
+            oneWeekAgo.setDate(now.getDate() - 7);
+           
+            return !lastDoneDate || lastDoneDate <= oneWeekAgo;
+          }
+        } else {
+          // Task does not repeat, so include it
+        
+          return true;
         }
-      } else {
-        // Task does not repeat, so consider both time and weather options
-        return isTimeOptionMatch && isWeatherOptionMatch;
-      }
+      } 
+  
+      // Exclude tasks that don't meet the criteria
+      return false;
     })
   );
+  
+  
+
   
   
 
@@ -386,36 +418,39 @@ function HandleSubmitTask(e) {
   e.preventDefault();
 
   // Initialize variables with default values
-  let weatherOptionValue = "jedes Wetter";
+ 
+  let dependsOnWeather = "off"
   let timeOptionValue = "egal wann";
   let repeatOptionValue = "no repeat";
 
   // Check the state of "allDay," "weather," and "repeat" checkboxes and set variables accordingly
-  if (e.target.allDay.checked) {
+  if (allDayChecked) {
     timeOptionValue = "egal wann";
   } else {
     timeOptionValue = e.target.timeOption.value;
   }
 
-  if (!showWeatherOptions || !e.target.weather.checked) {
-    weatherOptionValue = "jedes Wetter";
-  } else if (showWeatherOptions) {
-    weatherOptionValue = e.target.weatherOption.value;
-  }
+  if (!weatherChecked) {
+    setWeatherOption("jedes Wetter");
+  } 
 
-  if (!e.target.repeat.checked) {
+  if (!showRepeatOptions) {
     repeatOptionValue = "no repeat";
   } else if (showRepeatOptions) {
     repeatOptionValue = e.target.repeatOption.value;
   }
-  
+  if (weatherChecked) {
+    dependsOnWeather = "on"
+  } else {
+    dependsOnWeather = "off"
+  }
  
   
     // Pass the variables to the writeTaskToDatabase function
     writeTaskToDatabase(
       e.target.name.value,
-      e.target.weather.value,
-      weatherOptionValue,
+      dependsOnWeather,
+      weatherOption,
       e.target.allDay.value,
       timeOptionValue,
       e.target.repeat.value,
@@ -465,7 +500,7 @@ function HandleSubmitTask(e) {
   }
   
 async function DeleteTask(id) {
-  
+
   await HandleDeleteTask(id);
   fetchUserTasksFromFirestore(user.email)
   .then((tasks) => {
@@ -474,16 +509,17 @@ async function DeleteTask(id) {
 }
 
 const handleWeatherChange = (e) => {
-  setShowWeatherOptions(e.target.checked);
-  setWeatherChecked(e.target.checked);
-  console.log(e.target.checked)
+
+  setShowWeatherOptions(prev => !prev);
+  setWeatherChecked(prev => !prev);
+  
 };
 const handleRepeatOptionChange = (e) => {
   setRepeatOption(e.target.value);
 };
 const handleAllDayChange = (e) => {
-  setShowTimeOptions(!e.target.checked);
-  setAllDayChecked(e.target.checked);
+  setShowTimeOptions(prev => !prev);
+  setAllDayChecked(prev => !prev);
 };
 const handleWeatherOptionChange = (e) => {
   setWeatherOption(e.target.value);
@@ -492,7 +528,7 @@ const handleTimeOptionChange = (e) => {
   setTimeOption(e.target.value);
 };
 const handleRepeatChange = (e) => {
-  setShowRepeatOptions(e.target.checked);
+  setShowRepeatOptions(prev => !prev);
 }
 
 const randomTask = () => {
@@ -554,7 +590,7 @@ return (
            <li><h2>{task.name}</h2></li>
            <hr width="100%" color="black" size="10px" align="center" />
            <br></br>
-           <li>{task.timeOption === "Nacht" ? "in der " : "am " }{task.timeOption}</li>
+           <li>{task.timeOption === "egal wann" ? "" : task.timeOption === "Nacht" ? "in der " : "am " }{task.timeOption}</li>
            <hr></hr>
            <li>für {task.weatherOption}</li>
            <br/>
@@ -575,26 +611,30 @@ return (
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">ausgewählte Stadt: {city}</ModalHeader>
-              <ModalBody>
+              
                 <form onSubmit={(e) => HandleChangeCity(e)}>
                   <input
                     required
                     type="text"
                     name="city"
-                    placeholder="City"
+                    placeholder={city}
                   ></input>
                  
                   <button type="submit">Suche</button>
                 </form>
                 {error && <ErrorMessage>Stadt nicht gefunden...</ErrorMessage>}
-              </ModalBody>
-              <ModalFooter>
+             
+                <hr width="100%"></hr>
+                
                 <Button onClick={() => handleLogout()}>Logout</Button>
+                
+                <hr width="100%"></hr>
                 
                 <Button color="danger" variant="light" onClick={()=> setSettings(false)}>
                   Schließen
                 </Button>
-              </ModalFooter>
+              
+            
             </>
           )}
         </ModalContent>
@@ -608,19 +648,20 @@ return (
           {(onClose) => (
             <>
               <ModalHeader>Neue Aufgabe:</ModalHeader>
+              <hr width="100%"></hr>
               <ModalBody>
               <StyledForm onSubmit={HandleSubmitTask}>
-  <input required type="text" name="name" placeholder="Name der Aufgabe" />
+  <StyledInput maxLength="23" required type="text" name="name" placeholder="Name der Aufgabe" />
 
   <label htmlFor="weather">Hängt sie vom Wetter ab?</label>
-  <input
-    type="checkbox"
+  <Button
+    type="button"
     name="weather"
     id="weather"
-    onChange={handleWeatherChange}
+    onClick={handleWeatherChange}
    checked={weatherChecked}
-  />
-
+  >{weatherChecked ? "Nein" : "Ja"}</Button>
+  
   {showWeatherOptions && (
     <div>
       <label htmlFor="goodWeather" style={{ color: weatherOption === 'gutes Wetter' ? 'green' : 'black' }}>
@@ -650,14 +691,14 @@ return (
   )}
 
   <label htmlFor="allDay">Tageszeit egal?</label>
-  <input
+  <Button
     
-    checked={allDayChecked}
-    type="checkbox"
+    
+    type="button"
     name="allDay"
     id="allDay"
-    onChange={handleAllDayChange}
-  />
+    onClick={handleAllDayChange}
+  >{allDayChecked ? "Nein" : "Ja" }</Button>
 
   {showTimeOptions && (
     <div>
@@ -721,13 +762,13 @@ return (
   )}
 
   <label htmlFor="repeat">Wiederholen?</label>
-  <input
-    type="checkbox"
+  <Button
+    type="button"
     name="repeat"
     id="repeat"
-    onChange={handleRepeatChange}
+    onClick={handleRepeatChange}
     
-  />
+  >{showRepeatOptions ? "Nein" : "Ja" }</Button>
 
   {showRepeatOptions && (
     <div>
@@ -757,8 +798,9 @@ return (
       {/* Add other repeat options here */}
     </div>
   )}
-
+<hr width="100%"></hr>
   <Button type="submit">Speichern</Button>
+  <hr width="100%"></hr>
 </StyledForm>
 
 

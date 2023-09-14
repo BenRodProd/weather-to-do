@@ -10,7 +10,7 @@ async function HandleUpdateTaskDate(taskId) {
       date: serverTimestamp(),
     });
 
-    console.log('Task date updated successfully.');
+
   } catch (error) {
     console.error('Error updating task date:', error);
   }

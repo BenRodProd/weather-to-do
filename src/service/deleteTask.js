@@ -12,12 +12,14 @@ export default async function HandleDeleteTask(id) {
 
     if (taskDocSnapshot.exists()) {
       // Check if the 'doesRepeat' field is set to 'on'
-      const doesRepeat = taskDocSnapshot.data().doesRepeat;
+      const doesRepeat = taskDocSnapshot.data().repeatOption;
 
-      if (doesRepeat === 'on') {
+      if (doesRepeat !== 'no repeat') {
+     
         // Update the 'date' field with the current date (or your desired logic)
         await setDoc(taskDocRef, { done: serverTimestamp() }, { merge: true });
       } else {
+      
         // Delete the document
         await deleteDoc(taskDocRef);
       }
