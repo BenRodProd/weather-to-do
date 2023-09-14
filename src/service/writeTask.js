@@ -1,4 +1,4 @@
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firestore } from './firebase'; // Import your Firestore instance
 
 export default async function writeTaskToDatabase(
@@ -25,11 +25,12 @@ export default async function writeTaskToDatabase(
       timeOption,
       doesRepeat,
       repeatOption,
-      user
+      user,
+      
     });
 
  
   } catch (error) {
-   
+   console.error(error)
   }
 }

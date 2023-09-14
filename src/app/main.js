@@ -20,6 +20,7 @@ import writeTaskToDatabase from "@/service/writeTask";
 import fetchUserTasksFromFirestore from "@/service/fetchTasks";
 import HandleDeleteTask from "@/service/deleteTask";
 
+
 const Zoom = keyframes`
   0% {
     opacity: 0;
@@ -254,9 +255,9 @@ export default function Main({ user }) {
   const [showWeatherOptions, setShowWeatherOptions] = useState(false);
   const [showTimeOptions, setShowTimeOptions] = useState(false);
   const [showRepeatOptions, setShowRepeatOptions] = useState(false);
-  const [weatherOption, setWeatherOption] = useState('good weather');
-  const [timeOption, setTimeOption] = useState('morning');
-  const [repeatOption, setRepeatOption] = useState('daily');
+  const [weatherOption, setWeatherOption] = useState('gutes Wetter');
+  const [timeOption, setTimeOption] = useState('Morgen');
+  const [repeatOption, setRepeatOption] = useState('täglich');
   const [allDayChecked, setAllDayChecked] = useState(true);
   const [weatherChecked, setWeatherChecked] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
@@ -325,29 +326,59 @@ const [backgroundImageSrc, setBackgroundImageSrc] = useState("");
 useEffect(() => {
   let today = new Date();
   if (today.getHours() > 7 && today.getHours() < 12) {
-    setCurrentTime("morning")
+    setCurrentTime("Morgen")
   } else if (today.getHours() >= 12 && today.getHours() < 15) {
-    setCurrentTime("noon")
+    setCurrentTime("Mittag")
   } else if (today.getHours() >= 15 && today.getHours() < 18) {
-    setCurrentTime("afternoon")
+    setCurrentTime("Nachmittag")
   } else if (today.getHours() >= 18 && today.getHours() < 21) {
-    setCurrentTime("evening")
+    setCurrentTime("Abend")
   } else {
-    setCurrentTime("night")
+    setCurrentTime("Nacht")
   }
   
  
 
-  setDisplayTasks(allTasks.filter(task => {
-    return task.timeOption === currentTime || task.timeOption === "all day"
-  }).filter(task => {
-    return (task.weatherOption === "bad weather" && rainy) || (task.weatherOption === "good weather" && !rainy) || (task.weatherOption === "any weather")
-  }
-    )
-  )
+  const now = new Date();
+
+  setDisplayTasks(
+    allTasks.filter((task) => {
+    
+      // Check if the task matches the current time of day or is set to "egal wann"
+      const isTimeOptionMatch =
+        task.timeOption === currentTime || task.timeOption === 'egal wann';
+  
+      // Check if the task matches the current weather conditions or is set to "bei jedem Wetter"
+      const isWeatherOptionMatch =
+        (task.weatherOption === 'schlechtes Wetter' && rainy) ||
+        (task.weatherOption === 'gutes Wetter' && !rainy) ||
+        task.weatherOption === 'bei jedem Wetter';
+  
+      if (task.doesRepeat === 'on') {
+        if (task.repeatOption === 'täglich') {
+          // Check if a day has passed since the task was last done (if "done" field exists)
+          const lastDoneDate = task.done?.toDate(); // Using optional chaining
+          const oneDayAgo = new Date(now);
+          oneDayAgo.setDate(now.getDate() - 1); // Subtract one day
+          return !lastDoneDate || lastDoneDate <= oneDayAgo;
+        } else if (task.repeatOption === 'wöchentlich') {
+          // Check if a week has passed since the task was last done (if "done" field exists)
+          const lastDoneDate = task.done?.toDate(); // Using optional chaining
+          const oneWeekAgo = new Date(now);
+          oneWeekAgo.setDate(now.getDate() - 7); // Subtract one week
+          return !lastDoneDate || lastDoneDate <= oneWeekAgo;
+        }
+      } else {
+        // Task does not repeat, so consider both time and weather options
+        return isTimeOptionMatch && isWeatherOptionMatch;
+      }
+    })
+  );
+  
+  
 
 
-  console.log(allTasks, data)
+
 },[allTasks, data])
 
 
@@ -355,19 +386,19 @@ function HandleSubmitTask(e) {
   e.preventDefault();
 
   // Initialize variables with default values
-  let weatherOptionValue = "any weather";
-  let timeOptionValue = "all day";
+  let weatherOptionValue = "bei jedem Wetter";
+  let timeOptionValue = "egal wann";
   let repeatOptionValue = "no repeat";
 
   // Check the state of "allDay," "weather," and "repeat" checkboxes and set variables accordingly
   if (e.target.allDay.checked) {
-    timeOptionValue = "all day";
+    timeOptionValue = "egal wann";
   } else {
     timeOptionValue = e.target.timeOption.value;
   }
 
   if (!showWeatherOptions || !e.target.weather.checked) {
-    weatherOptionValue = "any weather";
+    weatherOptionValue = "bei jedem Wetter";
   } else if (showWeatherOptions) {
     weatherOptionValue = e.target.weatherOption.value;
   }
@@ -434,6 +465,7 @@ function HandleSubmitTask(e) {
   }
   
 async function DeleteTask(id) {
+  
   await HandleDeleteTask(id);
   fetchUserTasksFromFirestore(user.email)
   .then((tasks) => {
@@ -468,7 +500,7 @@ const randomTask = () => {
     const randomIndex = Math.floor(Math.random() * displayTasks.length);
     const task = displayTasks[randomIndex];
     setSelectedTask(task);
-console.log(displayTasks[randomIndex], task, randomIndex, selectedTask)
+
   }
 };
 
@@ -478,7 +510,7 @@ if (!city || !data) {
   return (
     <StyledModal backdrop="blur" isOpen={true} onOpenChange={onOpenChange}>
       <ModalContent>
-        <ModalHeader>Welcome {user.displayName}...</ModalHeader>
+        <ModalHeader>Willkommen {user.displayName}...</ModalHeader>
         <div>
           <form onSubmit={(e) => HandleChangeCity(e)}>
             <input
@@ -487,10 +519,10 @@ if (!city || !data) {
               name="city"
               placeholder="City"
             ></input>
-            <button type="submit">Search</button>
+            <button type="submit">Suche</button>
           </form>
         </div>
-            {error && <ErrorMessage>City not found</ErrorMessage>}
+            {error && <ErrorMessage>Stadt nicht gefunden</ErrorMessage>}
         <button onClick={() => handleLogout()}>Logout</button>
       </ModalContent>
     </StyledModal>
@@ -507,11 +539,11 @@ if (!city || !data) {
 return (
   <>
     <MainDiv>
-      <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}>Settings</SettingsButton>
-      <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}>Add</AddButton>
+      <SettingsButton onClick={() => setSettings(prevSettings => !prevSettings)}><Image src="/settings.png" alt="settings" width="30" height="30"/></SettingsButton>
+      <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}><Image src="/add.png" alt="add" width="30" height="30"/></AddButton>
       <CurrentMessage>
-        <h2>In the moment {rainy ? "it could be rainy" : "it is not rainy"}</h2>
-        {displayTasks.length > 0 ? <h2>For this {currentTime} you have {displayTasks.length > 1 ? "these tasks to choose from:" : "this task to do:"}</h2> : "You have no tasks for now"}
+        <h2>Es ist im Moment {rainy ? "regnerisch" : "nicht regnerisch"}</h2>
+        {displayTasks.length > 0 ? <h2>Für diesen {currentTime} hast du {displayTasks.length > 1 ? "diese Aufgaben zur Auswahl:" : "diese Aufgabe zu erledigen:"}</h2> : "Du hast gerade keine Aufgaben..."}
       </CurrentMessage>
       <TaskBoard>
       {displayTasks.length > 0 && (
@@ -525,14 +557,14 @@ return (
            <hr></hr>
            <li>{task.weatherOption}</li>
            <br/>
-           <Button onClick={() => DeleteTask(task.id)}>Delete</Button>
+           <Button onClick={() => DeleteTask(task.id)}><Image src="/done.png" alt="done" width="30" height="30"/></Button>
            </TaskCard>
         })}
         </>
       )}
       </TaskBoard>
-      <BackgroundImage alt="backgroundimage" height="1024" width="1024" src={backgroundImageSrc}></BackgroundImage>
-      <Button onClick={()=> randomTask()}>I can not decide</Button>
+      <BackgroundImage priority alt="backgroundimage" height="1024" width="1024" src={backgroundImageSrc}></BackgroundImage>
+      {displayTasks.length > 1 && <Button onClick={()=> randomTask()}>Ich kann mich nicht entscheiden</Button>}
       
     </MainDiv>
     {settings && (
@@ -541,7 +573,7 @@ return (
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">chosen City: {city}</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">ausgewählte Stadt: {city}</ModalHeader>
               <ModalBody>
                 <form onSubmit={(e) => HandleChangeCity(e)}>
                   <input
@@ -551,14 +583,15 @@ return (
                     placeholder="City"
                   ></input>
                  
-                  <button type="submit">Search</button>
+                  <button type="submit">Suche</button>
                 </form>
-                {error && <ErrorMessage>City not found</ErrorMessage>}
+                {error && <ErrorMessage>Stadt nicht gefunden...</ErrorMessage>}
               </ModalBody>
               <ModalFooter>
                 <Button onClick={() => handleLogout()}>Logout</Button>
+                
                 <Button color="danger" variant="light" onClick={()=> setSettings(false)}>
-                  Close
+                  Schließen
                 </Button>
               </ModalFooter>
             </>
@@ -573,12 +606,12 @@ return (
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader >Enter new Task</ModalHeader>
+              <ModalHeader>Neue Aufgabe:</ModalHeader>
               <ModalBody>
               <StyledForm onSubmit={HandleSubmitTask}>
-  <input required type="text" name="name" placeholder="Taskname" />
+  <input required type="text" name="name" placeholder="Name der Aufgabe" />
 
-  <label htmlFor="weather">Depends on weather?</label>
+  <label htmlFor="weather">Hängt sie vom Wetter ab?</label>
   <input
     type="checkbox"
     name="weather"
@@ -589,33 +622,33 @@ return (
 
   {showWeatherOptions && (
     <div>
-      <label htmlFor="goodWeather" style={{ color: weatherOption === 'good weather' ? 'green' : 'black' }}>
+      <label htmlFor="goodWeather" style={{ color: weatherOption === 'gutes Wetter' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
           id="goodWeather"
           name="weatherOption"
-          value="good weather"
-          checked={weatherOption === 'good weather'}
+          value="gutes Wetter"
+          checked={weatherOption === 'gutes Wetter'}
           onChange={handleWeatherOptionChange}
           
         />{" "}
-        Good Weather
+        gutes Wetter
       </label>
-      <label htmlFor="badWeather" style={{ color: weatherOption === 'bad weather' ? 'green' : 'black' }}>
+      <label htmlFor="badWeather" style={{ color: weatherOption === 'schlechtes Wetter' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
           id="badWeather"
           name="weatherOption"
-          value="bad weather"
-          checked={weatherOption === 'bad weather'}
+          value="schlechtes Wetter"
+          checked={weatherOption === 'schlechtes Wetter'}
           onChange={handleWeatherOptionChange}
         />{" "}
-        Bad Weather
+        schlechtes Wetter
       </label>
     </div>
   )}
 
-  <label htmlFor="allDay">All Day?</label>
+  <label htmlFor="allDay">Tageszeit egal?</label>
   <input
     
     checked={allDayChecked}
@@ -627,66 +660,66 @@ return (
 
   {showTimeOptions && (
     <div>
-      <label htmlFor="morning" style={{ color: timeOption === 'morning' ? 'green' : 'black' }}>
+      <label htmlFor="Morgen" style={{ color: timeOption === 'Morgen' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
-          id="morning"
+          id="Morgen"
           name="timeOption"
-          value="morning"
-          checked={timeOption === 'morning'}
+          value="Morgen"
+          checked={timeOption === 'Morgen'}
           onChange={handleTimeOptionChange}
           
         />{" "}
-        Morning
+        Morgen
       </label>
-      <label htmlFor="noon" style={{ color: timeOption === 'noon' ? 'green' : 'black' }}>
+      <label htmlFor="Mittag" style={{ color: timeOption === 'Mittag' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
-          id="noon"
+          id="Mittag"
           name="timeOption"
-          value="noon"
-          checked={timeOption === 'noon'}
+          value="Mittag"
+          checked={timeOption === 'Mittag'}
           onChange={handleTimeOptionChange}
         />{" "}
-        Noon
+        Mittag
       </label>
-      <label htmlFor="afternoon" style={{ color: timeOption === 'afternoon' ? 'green' : 'black' }}>
+      <label htmlFor="Nachmittag" style={{ color: timeOption === 'Nachmittag' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
-          id="afternoon"
+          id="Nachmittag"
           name="timeOption"
-          value="afternoon"
-          checked={timeOption === 'afternoon'}
+          value="Nachmittag"
+          checked={timeOption === 'Nachmittag'}
           onChange={handleTimeOptionChange}
         />{" "}
-        Afternoon
+        Nachmittag
       </label>
-      <label htmlFor="evening" style={{ color: timeOption === 'evening' ? 'green' : 'black' }}>
+      <label htmlFor="Abend" style={{ color: timeOption === 'Abend' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
-          id="evening"
+          id="Abend"
           name="timeOption"
-          value="evening"
-          checked={timeOption === 'evening'}
+          value="Abend"
+          checked={timeOption === 'Abend'}
           onChange={handleTimeOptionChange}
         />{" "}
-        Evening
+        Abend
       </label>
-      <label htmlFor="night" style={{ color: timeOption === 'night' ? 'green' : 'black' }}>
+      <label htmlFor="Nacht" style={{ color: timeOption === 'Nacht' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
-          id="night"
+          id="Nacht"
           name="timeOption"
-          value="night"
-          checked={timeOption === 'night'}
+          value="Nacht"
+          checked={timeOption === 'Nacht'}
           onChange={handleTimeOptionChange}
         />{" "}
-        Night
+        Nacht
       </label>
     </div>
   )}
 
-  <label htmlFor="repeat">Repeat?</label>
+  <label htmlFor="repeat">Wiederholen?</label>
   <input
     type="checkbox"
     name="repeat"
@@ -697,43 +730,43 @@ return (
 
   {showRepeatOptions && (
     <div>
-      <label htmlFor="daily" style={{ color: repeatOption === 'daily' ? 'green' : 'black' }}>
+      <label htmlFor="daily" style={{ color: repeatOption === 'täglich' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
           id="daily"
           name="repeatOption"
-          value="daily"
-          checked={repeatOption === 'daily'}
+          value="täglich"
+          checked={repeatOption === 'täglich'}
           onChange={handleRepeatOptionChange}
           
         />{" "}
-        Daily
+        Täglich
       </label>
-      <label htmlFor="weekly" style={{ color: repeatOption === 'weekly' ? 'green' : 'black' }}>
+      <label htmlFor="weekly" style={{ color: repeatOption === 'wöchentlich' ? 'green' : 'black' }}>
         <NoRadio
           type="radio"
           id="weekly"
           name="repeatOption"
-          value="weekly"
-          checked={repeatOption === 'weekly'}
+          value="wöchentlich"
+          checked={repeatOption === 'wöchentlich'}
           onChange={handleRepeatOptionChange}
         />{" "}
-        Weekly
+        Wöchentlich
       </label>
       {/* Add other repeat options here */}
     </div>
   )}
 
-  <button type="submit">Submit</button>
+  <Button type="submit">Speichern</Button>
 </StyledForm>
 
 
-                {error && <ErrorMessage>City not found</ErrorMessage>}
+                {error && <ErrorMessage>Stadt nicht gefunden...</ErrorMessage>}
               </ModalBody>
               <StyledModalFooter>
                 
                 <Button color="danger" variant="light" onClick={()=>{setAdd(false)}}>
-                  Close
+                  Schließen
                 </Button>
               </StyledModalFooter>
             </>
@@ -746,7 +779,7 @@ return (
       <BackDropper>
         <StyledModal isOpen={true} onClose={() => setSelectedTask(null)}>
           <ModalContent>
-            <ModalHeader>I have picked this task for you:</ModalHeader>
+            <ModalHeader>Ich habe diese Aufgabe ausgesucht:</ModalHeader>
             <ModalBody>
               {/* Display the selected task details here */}
               <div>
@@ -754,7 +787,7 @@ return (
                 <h2>{selectedTask.name}</h2>
                 <br></br>
                 <hr></hr>
-                <p>Get it going!</p>
+                <p>Hau rein!</p>
               </div>
             </ModalBody>
             <ModalFooter>
@@ -763,7 +796,7 @@ return (
                 variant="light"
                 onClick={() => setSelectedTask(null)}
               >
-                Close
+                Schließen
               </Button>
             </ModalFooter>
           </ModalContent>

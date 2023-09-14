@@ -18,9 +18,9 @@ export default async function writeToFirestore(username, city) {
     } else {
       // Document doesn't exist, create a new one
       await setDoc(userDocRef, { city: city });
-     
+     console.log("written")
     }
   } catch (error) {
-    
+    console.error(error)
   }
 }
