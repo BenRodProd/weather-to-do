@@ -117,6 +117,7 @@ grid-gap: 2rem;
 
 const TaskCard = styled.ul`
   display: flex;
+  color: black;
   flex-direction: column;
   justify-content: center;
   align-items: center;
