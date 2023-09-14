@@ -52,6 +52,7 @@ const Button = styled.button`
 
 const MainDiv = styled.div`
   display: flex;
+  position:relative;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -71,21 +72,21 @@ label {
 
 const TaskBoard = styled.div`
 display:grid;
-postion:absolute;
+position:relative;
 align-self:center;
 
 width:80%;
-height:70vh;
+height:75vh;
 
 overflow-y: auto;
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 870px) {
   
-  grid-template-columns: repeat(4, 25%);
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
 }
-@media screen and (min-width: 450px) and (max-width: 768px) {
+@media screen and (min-width: 400px) and (max-width: 870px) {
   
-  grid-template-columns: repeat(3, 33%);
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
 }
 
@@ -106,6 +107,7 @@ const TaskCard = styled.ul`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
   padding: 1rem;
   border: 2px solid black;
   border-radius: 10px;
@@ -232,6 +234,13 @@ const CurrentMessage = styled.div`
   border: 2px solid black;
   border-radius: 10px;
   text-shadow: 2px 2px 8px #000000; 
+
+  @media screen and (max-width: 800px) {
+    margin-top: 4rem;
+  }
+  @media screen and (min-width:800px) {
+    margin-top: 0rem;
+  }
 `;
 
 
@@ -513,6 +522,7 @@ return (
            <hr width="100%" color="black" size="10px" align="center" />
            <br></br>
            <li>{task.timeOption}</li>
+           <hr></hr>
            <li>{task.weatherOption}</li>
            <br/>
            <Button onClick={() => DeleteTask(task.id)}>Delete</Button>
