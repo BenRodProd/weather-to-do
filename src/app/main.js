@@ -70,7 +70,7 @@ const MainDiv = styled.div`
   justify-content: center;
   align-items: center;
   
-  height: 100%;
+  height: 100dvh;
   width: 100%;
 `;
 
