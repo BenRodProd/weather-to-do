@@ -144,7 +144,7 @@ const BackDropper = styled.div`
   height: 100%;
   background-color: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(7px);
-  z-index:0;
+  z-index:1;
 `;
 
 const StyledModal = styled(Modal)`
