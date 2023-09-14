@@ -347,13 +347,13 @@ useEffect(() => {
       // Check if the task matches the current time of day or is set to "egal wann"
       const isTimeOptionMatch =
         task.timeOption === currentTime || task.timeOption === 'egal wann';
-  
-      // Check if the task matches the current weather conditions or is set to "bei jedem Wetter"
+      console.log("timeOption", isTimeOptionMatch)
+      // Check if the task matches the current weather conditions or is set to "jedes Wetter"
       const isWeatherOptionMatch =
         (task.weatherOption === 'schlechtes Wetter' && rainy) ||
         (task.weatherOption === 'gutes Wetter' && !rainy) ||
-        task.weatherOption === 'bei jedem Wetter';
-  
+        task.weatherOption === 'jedes Wetter';
+        console.log("WeatherOption", isWeatherOptionMatch)
       if (task.doesRepeat === 'on') {
         if (task.repeatOption === 'täglich') {
           // Check if a day has passed since the task was last done (if "done" field exists)
@@ -386,7 +386,7 @@ function HandleSubmitTask(e) {
   e.preventDefault();
 
   // Initialize variables with default values
-  let weatherOptionValue = "bei jedem Wetter";
+  let weatherOptionValue = "jedes Wetter";
   let timeOptionValue = "egal wann";
   let repeatOptionValue = "no repeat";
 
@@ -398,7 +398,7 @@ function HandleSubmitTask(e) {
   }
 
   if (!showWeatherOptions || !e.target.weather.checked) {
-    weatherOptionValue = "bei jedem Wetter";
+    weatherOptionValue = "jedes Wetter";
   } else if (showWeatherOptions) {
     weatherOptionValue = e.target.weatherOption.value;
   }
@@ -476,6 +476,7 @@ async function DeleteTask(id) {
 const handleWeatherChange = (e) => {
   setShowWeatherOptions(e.target.checked);
   setWeatherChecked(e.target.checked);
+  console.log(e.target.checked)
 };
 const handleRepeatOptionChange = (e) => {
   setRepeatOption(e.target.value);
@@ -543,7 +544,7 @@ return (
       <AddButton onClick={() => setAdd(prevSettings => !prevSettings)}><Image src="/add.png" alt="add" width="30" height="30"/></AddButton>
       <CurrentMessage>
         <h2>Es ist im Moment {rainy ? "regnerisch" : "nicht regnerisch"}</h2>
-        {displayTasks.length > 0 ? <h2>Für diesen {currentTime} hast du {displayTasks.length > 1 ? "diese Aufgaben zur Auswahl:" : "diese Aufgabe zu erledigen:"}</h2> : "Du hast gerade keine Aufgaben..."}
+        {displayTasks.length > 0 ? <h2>Für {currentTime==="Nacht" ? "diese" : "diesen" } {currentTime} hast du {displayTasks.length > 1 ? "diese Aufgaben zur Auswahl:" : "diese Aufgabe zu erledigen:"}</h2> : "Du hast gerade keine Aufgaben..."}
       </CurrentMessage>
       <TaskBoard>
       {displayTasks.length > 0 && (
@@ -553,9 +554,9 @@ return (
            <li><h2>{task.name}</h2></li>
            <hr width="100%" color="black" size="10px" align="center" />
            <br></br>
-           <li>{task.timeOption}</li>
+           <li>{task.timeOption === "Nacht" ? "in der " : "am " }{task.timeOption}</li>
            <hr></hr>
-           <li>{task.weatherOption}</li>
+           <li>für {task.weatherOption}</li>
            <br/>
            <Button onClick={() => DeleteTask(task.id)}><Image src="/done.png" alt="done" width="30" height="30"/></Button>
            </TaskCard>
