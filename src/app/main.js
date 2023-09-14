@@ -40,6 +40,7 @@ const Zoom = keyframes`
 
 const StyledInput = styled.input`
   display: flex;
+  color:black;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
@@ -52,6 +53,7 @@ const StyledInput = styled.input`
 `;
 const Button = styled.button`
   display: flex;
+  color:black;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
@@ -61,6 +63,7 @@ const Button = styled.button`
   background-color: white;
   cursor: pointer;
   user-select: none;
+  z-index:1;
 `;
 
 const MainDiv = styled.div`
@@ -158,6 +161,34 @@ border: 3px solid black;
   user-select: none;
   z-index:1;
   text-align: center;
+`;
+const StyledAddModal = styled(Modal)`
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+border: 3px solid black;
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+ 
+  background-color: lightgray;
+  border-radius: 10px;
+  padding: 20px;
+  
+  
+  user-select: none;
+  z-index:1;
+  text-align: center;
+
+
+  @media screen and (max-width: 400px) {
+    gap:0;
+  }
+  @media screen and (min-width: 500px) {
+    gap: 3rem;
+  }
 `;
 
 const StyledModalFooter = styled(ModalFooter)`
@@ -551,17 +582,17 @@ if (!city || !data) {
         <ModalHeader>Willkommen {user.displayName}...</ModalHeader>
         <div>
           <form onSubmit={(e) => HandleChangeCity(e)}>
-            <input
+            <StyledInput
               required
               type="text"
               name="city"
               placeholder="City"
-            ></input>
-            <button type="submit">Suche</button>
+            ></StyledInput>
+            <Button type="submit">Suche</Button>
           </form>
         </div>
             {error && <ErrorMessage>Stadt nicht gefunden</ErrorMessage>}
-        <button onClick={() => handleLogout()}>Logout</button>
+        <Button onClick={() => handleLogout()}>Logout</Button>
       </ModalContent>
     </StyledModal>
   );
@@ -613,16 +644,16 @@ return (
             <>
               <ModalHeader className="flex flex-col gap-1">ausgewählte Stadt: {city}</ModalHeader>
               
-                <form onSubmit={(e) => HandleChangeCity(e)}>
-                  <input
+                <StyledForm onSubmit={(e) => HandleChangeCity(e)}>
+                  <StyledInput
                     required
                     type="text"
                     name="city"
                     placeholder={city}
-                  ></input>
+                  ></StyledInput>
                  
-                  <button type="submit">Suche</button>
-                </form>
+                  <Button type="submit">Suche</Button>
+                </StyledForm>
                 {error && <ErrorMessage>Stadt nicht gefunden...</ErrorMessage>}
              
                 <hr width="100%"></hr>
@@ -644,7 +675,7 @@ return (
     )}
         {add && (
           <BackDropper>
-      <StyledModal backdrop="blur" isOpen={add} onOpenChange={setAdd} onClose={setAdd}>
+      <StyledAddModal backdrop="blur" isOpen={add} onOpenChange={setAdd} onClose={setAdd}>
         <ModalContent>
           {(onClose) => (
             <>
@@ -690,7 +721,7 @@ return (
       </label>
     </div>
   )}
-
+<hr width="100%"></hr>
   <label htmlFor="allDay">Tageszeit egal?</label>
   <Button
     
@@ -761,7 +792,7 @@ return (
       </label>
     </div>
   )}
-
+<hr width="100%"></hr>
   <label htmlFor="repeat">Wiederholen?</label>
   <Button
     type="button"
@@ -805,18 +836,18 @@ return (
 </StyledForm>
 
 
-                {error && <ErrorMessage>Stadt nicht gefunden...</ErrorMessage>}
-              </ModalBody>
-              <StyledModalFooter>
                 
+             
+                
+              </ModalBody>
                 <Button color="danger" variant="light" onClick={()=>{setAdd(false)}}>
                   Schließen
                 </Button>
-              </StyledModalFooter>
+            
             </>
           )}
         </ModalContent>
-      </StyledModal>
+      </StyledAddModal>
       </BackDropper>
     )}
      {selectedTask && (
