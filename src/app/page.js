@@ -19,7 +19,9 @@ const Footer = styled.div`
   transform: translateX(-50%);
   width: 100%;
   font-weight: bold;
-  margin: 1rem;
+  margin: 1rem 0 0;
+  z-index:-1;
+  background-color: aliceblue;
 `;
 
 export default function Home() {

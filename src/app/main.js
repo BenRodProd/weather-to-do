@@ -23,16 +23,16 @@ import HandleDeleteTask from "@/service/deleteTask";
 
 const Zoom = keyframes`
   0% {
-    opacity: 0;
-    z-index:2;
-    scale:2;
-    width:200%;
-    height:200%
+    
+    z-index:5;
+    
+    width:400%;
+    height:400%
   }
   100% {
-    opacity: 1;
+    
     z-index:0;
-    scale:1;
+    
     width:85%;
     height:85%;
   }
@@ -63,7 +63,7 @@ const Button = styled.button`
   background-color: white;
   cursor: pointer;
   user-select: none;
-  z-index:1;
+  z-index:0;
 `;
 
 const MainDiv = styled.div`
@@ -112,10 +112,13 @@ overflow-y: auto;
   grid-template-rows: 1fr;
 }
 grid-gap: 2rem;
-
-
 `
 
+const Decision = styled.div`
+display:flex;
+flex-direction: column;
+z-index:0;
+`
 
 
 const TaskCard = styled.ul`
@@ -159,7 +162,7 @@ border: 3px solid black;
   padding: 20px;
   gap:3rem;
   user-select: none;
-  z-index:1;
+  z-index:2;
   text-align: center;
 `;
 const StyledAddModal = styled(Modal)`
@@ -179,7 +182,7 @@ border: 3px solid black;
   
   
   user-select: none;
-  z-index:1;
+  z-index:2;
   text-align: center;
 
 
@@ -210,7 +213,7 @@ object-fit: cover;
 
 border: 10px solid burlywood;
 
-animation: ${Zoom} 1s ease-in;
+animation: ${Zoom} 1.5s ease-in;
 
 `
 
@@ -633,8 +636,9 @@ return (
       )}
       </TaskBoard>
       <BackgroundImage priority alt="backgroundimage" height="1024" width="1024" src={backgroundImageSrc}></BackgroundImage>
+      <Decision>
       {displayTasks.length > 1 && <Button onClick={()=> randomTask()}>Ich kann mich nicht entscheiden</Button>}
-      
+      </Decision>
     </MainDiv>
     {settings && (
       <BackDropper>
