@@ -18,9 +18,7 @@ import {
 import handleLogout from '@/service/logout';
 import writeToDatabase from '@/service/write';
 import fetchUserCityFromDatabase from '@/service/fetchCity';
-
 import fetchUserTasksFromFirestore from '@/service/fetchTasks';
-
 import DisplayTasks from './components/DisplayTasks';
 import Settings from './components/Settings';
 import AddTask from './components/AddTask';
@@ -33,15 +31,14 @@ export default function Main({ user }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [settings, setSettings] = useState(false);
   const [add, setAdd] = useState(false);
-
   const [currentTime, setCurrentTime] = useState('');
   const [rainy, setRainy] = useState(false);
   const [allTasks, setAllTasks] = useState([]);
   const [displayTasks, setDisplayTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('');
+
   useEffect(() => {
-    // Define an asynchronous function to fetch data
     fetchUserCityFromDatabase(user.email)
       .then((city) => {
         setCity(city);
@@ -68,12 +65,9 @@ export default function Main({ user }) {
       }
     }
 
-    // Call the async function to fetch data
     if (city) {
       fetchData();
     }
-    // Fetch the user's city from the database
-    // Replace 'fetchUserCityFromDatabase' with the actual function to fetch the user's city
   }, [city, user.email]);
 
   useEffect(() => {
@@ -85,7 +79,7 @@ export default function Main({ user }) {
   }, []);
 
   useEffect(() => {
-    let today = new Date();
+    const today = new Date();
     if (today.getHours() > 7 && today.getHours() < 12) {
       setCurrentTime('Morgen');
     } else if (today.getHours() >= 12 && today.getHours() < 15) {
@@ -98,50 +92,38 @@ export default function Main({ user }) {
       setCurrentTime('Nacht');
     }
 
-    const now = new Date();
-
     setDisplayTasks(
       allTasks.filter((task) => {
         const isTimeOptionMatch =
           task.timeOption === currentTime || task.timeOption === 'egal wann';
-
         const isWeatherOptionMatch =
           (task.weatherOption === 'schlechtes Wetter' && rainy) ||
           (task.weatherOption === 'gutes Wetter' && !rainy) ||
           task.weatherOption === 'jedes Wetter';
-
         if (
           task.repeatOption === 'no repeat' &&
           task.weatherOption === 'jedes Wetter' &&
           task.timeOption === 'egal wann'
         ) {
-          // Additional criteria for tasks with doesRepeat "off," weatherOption "jedes Wetter," and timeOption "egal wann"
-
           return true;
         } else if (isTimeOptionMatch && isWeatherOptionMatch) {
-          // Only consider tasks that match both time and weather options
           if (task.repeatOption !== 'no repeat') {
             if (task.repeatOption === 'täglich') {
               const lastDoneDate = task.done?.toDate();
-              const oneDayAgo = new Date(now);
-              oneDayAgo.setDate(now.getDate() - 1);
-
+              const oneDayAgo = new Date(today);
+              oneDayAgo.setDate(today.getDate() - 1);
               return !lastDoneDate || lastDoneDate <= oneDayAgo;
             } else if (task.repeatOption === 'wöchentlich') {
               const lastDoneDate = task.done?.toDate();
-              const oneWeekAgo = new Date(now);
-              oneWeekAgo.setDate(now.getDate() - 7);
+              const oneWeekAgo = new Date(today);
+              oneWeekAgo.setDate(today.getDate() - 7);
 
               return !lastDoneDate || lastDoneDate <= oneWeekAgo;
             }
           } else {
-            // Task does not repeat, so include it
-
             return true;
           }
         }
-
-        // Exclude tasks that don't meet the criteria
         return false;
       })
     );
