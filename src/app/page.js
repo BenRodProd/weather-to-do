@@ -1,28 +1,9 @@
-"use client"
-import { useState, useEffect } from "react";
-import Main from "./main";
-import { auth } from "@/service/firebase";
-import Login from "@/service/login";
-import styled from "styled-components";
-
-const Footer = styled.div`
-  display: flex;
-  position: fixed;
-  bottom: 0;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.8rem;
-  color: #000000;
-  text-align: center;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  font-weight: bold;
-  margin: 1rem 0 0;
-  z-index:-1;
-  background-color: aliceblue;
-`;
+'use client';
+import { useState, useEffect } from 'react';
+import Main from './main';
+import { auth } from '@/service/firebase';
+import Login from '@/service/login';
+import { Footer } from './components/Styles';
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -34,7 +15,6 @@ export default function Home() {
         // User is signed in
         setUser(user); // Set the user object
         setLoggedIn(true);
-       
       } else {
         // User is signed out
         setUser(null); // Clear the user object
@@ -46,10 +26,9 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-
   return (
     <>
-      {loggedIn ? <Main user = {user} /> : <Login />}
+      {loggedIn ? <Main user={user} /> : <Login />}
       <Footer>(c) 2023 BenRodProd</Footer>
     </>
   );
