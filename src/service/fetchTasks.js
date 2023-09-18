@@ -7,10 +7,7 @@ async function fetchUserTasksFromFirestore(user) {
     const todosCollectionRef = collection(firestore, 'todos');
 
     // Create a query to fetch tasks for the specific user
-    const userTasksQuery = query(
-      todosCollectionRef,
-      where('user', '==', user)
-    );
+    const userTasksQuery = query(todosCollectionRef, where('user', '==', user));
 
     // Execute the query and get the task documents
     const querySnapshot = await getDocs(userTasksQuery);
@@ -18,12 +15,9 @@ async function fetchUserTasksFromFirestore(user) {
     // Extract and return the tasks as an array
     const userTasks = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
-    }))
-    return userTasks
-        
-   
-    
+      ...doc.data()
+    }));
+    return userTasks;
   } catch (error) {
     console.error('Error fetching user tasks from Firestore:', error);
     throw error;

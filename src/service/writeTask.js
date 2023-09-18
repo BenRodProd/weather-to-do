@@ -11,7 +11,6 @@ export default async function writeTaskToDatabase(
   repeatOption,
   user
 ) {
-
   try {
     // Define the Firestore collection reference
     const todosCollectionRef = collection(firestore, 'todos');
@@ -25,12 +24,9 @@ export default async function writeTaskToDatabase(
       timeOption,
       doesRepeat,
       repeatOption,
-      user,
-      
+      user
     });
-
- 
   } catch (error) {
-   console.error(error)
+    console.error(error);
   }
 }

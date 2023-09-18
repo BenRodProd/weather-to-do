@@ -7,10 +7,8 @@ async function HandleUpdateTaskDate(taskId) {
 
     // Update the task document with the current date
     await updateDoc(taskRef, {
-      date: serverTimestamp(),
+      date: serverTimestamp()
     });
-
-
   } catch (error) {
     console.error('Error updating task date:', error);
   }
