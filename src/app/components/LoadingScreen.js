@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Spinner } from '@nextui-org/react';
+import { Spinner } from '@nextui-org/spinner';
 
 const StyledLoadingScreen = styled.div`
   display: flex;
@@ -13,8 +13,9 @@ const StyledLoadingScreen = styled.div`
 
 export default function LoadingScreen() {
   return (
-    <StyledLoadingScreen>
+    <div className="loading">
       <h1>Loading...</h1>
-    </StyledLoadingScreen>
+      <Spinner color="warning" />
+    </div>
   );
 }
