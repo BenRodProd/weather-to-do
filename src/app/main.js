@@ -23,6 +23,7 @@ import DisplayTasks from './components/DisplayTasks';
 import Settings from './components/Settings';
 import AddTask from './components/AddTask';
 import { TaskSelect } from './components/RandomTaskSelect';
+import ShowAllTasks from './components/ShowAllTasks';
 
 export default function Main({ user }) {
   const [city, setCity] = useState(null);
@@ -37,6 +38,7 @@ export default function Main({ user }) {
   const [displayTasks, setDisplayTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('');
+  const[showAllTasks, setShowAllTasks] = useState(false);
 
   useEffect(() => {
     fetchUserCityFromDatabase(user.email)
@@ -226,6 +228,7 @@ export default function Main({ user }) {
       </MainDiv>
       {settings && (
         <Settings
+          setShowAllTasks={setShowAllTasks}
           error={error}
           settings={settings}
           setSettings={setSettings}
@@ -233,6 +236,7 @@ export default function Main({ user }) {
           handleChangeCity={handleChangeCity}
         />
       )}
+      {showAllTasks && <ShowAllTasks allTasks={allTasks} setAllTasks={setAllTasks} user={user} setShowAllTasks={setShowAllTasks} setSettings={setSettings} />}
       {add && <AddTask user={user} add={add} setAdd={setAdd} setAllTasks={setAllTasks} />}
       {selectedTask && <TaskSelect setSelectedTask={setSelectedTask} selectedTask={selectedTask} />}
     </>

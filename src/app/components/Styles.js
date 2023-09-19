@@ -61,6 +61,42 @@ export const Button = styled.button`
   user-select: none;
   z-index: 0;
 `;
+export const EditButton = styled.button`
+  position:absolute;
+  color: black;
+  right:0;
+  top:0;
+  
+  padding: 0.5rem 0.5rem;
+  border: none;
+  background-color: rgba(0,0,0,0);
+  cursor: pointer;
+  user-select: none;
+  z-index: 0;
+`;
+
+export const DeleteButton = styled.button`
+  position:absolute;
+  color: black;
+  left:0;
+  top:0;
+  
+  padding: 0.5rem 0.5rem;
+  border: none;
+  background-color: rgba(0,0,0,0);
+  cursor: pointer;
+  user-select: none;
+  z-index: 0;
+`;
+
+export const CardHeader = styled.h2`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-top:1rem;
+ ` 
 
 export const MainDiv = styled.div`
   display: flex;
@@ -115,6 +151,7 @@ export const Decision = styled.div`
 
 export const TaskCard = styled.ul`
   display: flex;
+  position:relative;
   color: black;
   flex-direction: column;
   justify-content: center;

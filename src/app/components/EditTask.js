@@ -1,93 +1,52 @@
 import { useState } from 'react';
 import { BackDropper, StyledAddModal, StyledForm, StyledInput, Button, NoRadio } from './Styles';
 import { ModalContent, ModalHeader, ModalBody } from '@nextui-org/react';
-import writeTaskToDatabase from '@/service/writeTask';
+import updateTaskInDatabase from '@/service/updateTask';
 import fetchUserTasksFromFirestore from '@/service/fetchTasks';
-export default function AddTask({ add, setAdd, user, setAllTasks }) {
-  const [showWeatherOptions, setShowWeatherOptions] = useState(false);
-  const [showTimeOptions, setShowTimeOptions] = useState(false);
-  const [showRepeatOptions, setShowRepeatOptions] = useState(false);
-  const [timeOption, setTimeOption] = useState('egal wann');
-  const [repeatOption, setRepeatOption] = useState('täglich');
-  const [allDayChecked, setAllDayChecked] = useState(true);
-  const [weatherOption, setWeatherOption] = useState('jedes Wetter');
-  const [weatherChecked, setWeatherChecked] = useState(false);
 
-  function handleSubmitTask(e) {
+export default function EditTask({ task, editActive, setEditActive, user, setAllTasks }) {
+ 
+  const [showRepeatOptions, setShowRepeatOptions] = useState(task.doesRepeat==="on");
+  const [timeOption, setTimeOption] = useState(task.timeOption);
+  const [repeatOption, setRepeatOption] = useState(task.repeatOption);
+  const [allDayChecked, setAllDayChecked] = useState(task.isAllDay==="on");
+  const [weatherOption, setWeatherOption] = useState(task.weatherOption);
+  const [weatherChecked, setWeatherChecked] = useState(task.dependsOnWeather==="on");
+  const [taskName, setTaskName] = useState(task.name);
+
+  const handleSubmitTask = async (e) => {
+    
     e.preventDefault();
-    let dependsOnWeather = 'off';
-    let timeOptionValue = 'egal wann';
-    let repeatOptionValue = 'no repeat';
 
-    if (allDayChecked) {
-      timeOptionValue = 'egal wann';
-    } else {
-      timeOptionValue = e.target.timeOption.value;
-    }
-    if (!weatherChecked) {
-      setWeatherOption('jedes Wetter');
-    }
-    if (!showRepeatOptions) {
-      repeatOptionValue = 'no repeat';
-    } else if (showRepeatOptions) {
-      repeatOptionValue = e.target.repeatOption.value;
-    }
-    if (weatherChecked) {
-      dependsOnWeather = 'on';
-    } else {
-      dependsOnWeather = 'off';
-    }
-    writeTaskToDatabase(
-      e.target.name.value,
+    const dependsOnWeather = weatherChecked ? 'on' : 'off';
+    const timeOptionValue = !allDayChecked ? 'egal wann' : timeOption;
+    const repeatOptionValue = showRepeatOptions ? repeatOption : 'no repeat';
+    const weatherOptionValue = !weatherChecked ? 'jedes Wetter' : weatherOption;
+    const isAllDay = allDayChecked ? 'on' : 'off';
+    const doesRepeat = showRepeatOptions ? 'on' : 'off';
+
+    await updateTaskInDatabase(
+      task.id,
+      taskName,
       dependsOnWeather,
-      weatherOption,
-      e.target.allDay.value,
+      weatherOptionValue,
+      isAllDay,
       timeOptionValue,
-      e.target.repeat.value,
+      doesRepeat,
       repeatOptionValue,
       user.email
     );
-
-    // Reset the form
-    e.target.reset();
-    fetchUserTasksFromFirestore(user.email).then((tasks) => {
-      setAllTasks(tasks);
-    });
-
-    setShowRepeatOptions(false);
-    setShowTimeOptions(false);
-    setShowWeatherOptions(false);
-    setAllDayChecked(true);
-    setWeatherChecked(false);
-  }
-
-  const handleWeatherChange = (e) => {
-    setShowWeatherOptions((prev) => !prev);
-    setWeatherChecked((prev) => !prev);
-  };
-  const handleRepeatOptionChange = (e) => {
-    setRepeatOption(e.target.value);
-  };
-  const handleAllDayChange = (e) => {
-    setShowTimeOptions((prev) => !prev);
-    setAllDayChecked((prev) => !prev);
-  };
-  const handleWeatherOptionChange = (e) => {
-    setWeatherOption(e.target.value);
-  };
-  const handleTimeOptionChange = (e) => {
-    setTimeOption(e.target.value);
-  };
-  const handleRepeatChange = (e) => {
-    setShowRepeatOptions((prev) => !prev);
+   
+    const tasks = await fetchUserTasksFromFirestore(user.email);
+    setAllTasks(tasks);
   };
 
   return (
     <>
       <BackDropper>
-        <StyledAddModal backdrop="blur" isOpen={add} onOpenChange={setAdd} onClose={setAdd}>
+        <StyledAddModal backdrop="blur" isOpen={editActive} onOpenChange={setEditActive} onClose={setEditActive}>
           <ModalContent>
-            <ModalHeader>Neue Aufgabe:</ModalHeader>
+            <ModalHeader>Aufgabe bearbeiten:</ModalHeader>
             <hr width="100%"></hr>
             <ModalBody>
               <StyledForm onSubmit={handleSubmitTask}>
@@ -96,7 +55,9 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                   required
                   type="text"
                   name="name"
-                  placeholder="Name der Aufgabe"
+                  placeholder={task.name}
+                  defaultValue={task.name}
+                  onChange={(e) => setTaskName(e.target.value)}
                 />
 
                 <label htmlFor="weather">Hängt sie vom Wetter ab?</label>
@@ -104,13 +65,12 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                   type="button"
                   name="weather"
                   id="weather"
-                  onClick={handleWeatherChange}
-                  checked={weatherChecked}
+                  onClick={() => setWeatherChecked(!weatherChecked)}
                 >
                   {weatherChecked ? 'Nein' : 'Ja'}
                 </Button>
 
-                {showWeatherOptions && (
+                {weatherChecked && (
                   <div>
                     <label
                       htmlFor="goodWeather"
@@ -122,7 +82,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="weatherOption"
                         value="gutes Wetter"
                         checked={weatherOption === 'gutes Wetter'}
-                        onChange={handleWeatherOptionChange}
+                        onChange={(e) => setWeatherOption(e.target.value)}
                       />{' '}
                       gutes Wetter
                     </label>
@@ -136,7 +96,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="weatherOption"
                         value="schlechtes Wetter"
                         checked={weatherOption === 'schlechtes Wetter'}
-                        onChange={handleWeatherOptionChange}
+                        onChange={(e) => setWeatherOption(e.target.value)}
                       />{' '}
                       schlechtes Wetter
                     </label>
@@ -144,11 +104,11 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                 )}
                 <hr width="100%"></hr>
                 <label htmlFor="allDay">Tageszeit egal?</label>
-                <Button type="button" name="allDay" id="allDay" onClick={handleAllDayChange}>
-                  {allDayChecked ? 'Nein' : 'Ja'}
+                <Button type="button" name="allDay" id="allDay" onClick={() => setAllDayChecked(!allDayChecked)}>
+                  {allDayChecked ? 'Ja' : 'Nein'}
                 </Button>
 
-                {showTimeOptions && (
+                {allDayChecked && (
                   <div>
                     <label
                       htmlFor="Morgen"
@@ -160,7 +120,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="timeOption"
                         value="Morgen"
                         checked={timeOption === 'Morgen'}
-                        onChange={handleTimeOptionChange}
+                        onChange={(e) => setTimeOption(e.target.value)}
                       />{' '}
                       Morgen
                     </label>
@@ -174,7 +134,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="timeOption"
                         value="Mittag"
                         checked={timeOption === 'Mittag'}
-                        onChange={handleTimeOptionChange}
+                        onChange={(e) => setTimeOption(e.target.value)}
                       />{' '}
                       Mittag
                     </label>
@@ -188,7 +148,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="timeOption"
                         value="Nachmittag"
                         checked={timeOption === 'Nachmittag'}
-                        onChange={handleTimeOptionChange}
+                        onChange={(e) => setTimeOption(e.target.value)}
                       />{' '}
                       Nachmittag
                     </label>
@@ -202,7 +162,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="timeOption"
                         value="Abend"
                         checked={timeOption === 'Abend'}
-                        onChange={handleTimeOptionChange}
+                        onChange={(e) => setTimeOption(e.target.value)}
                       />{' '}
                       Abend
                     </label>
@@ -216,7 +176,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="timeOption"
                         value="Nacht"
                         checked={timeOption === 'Nacht'}
-                        onChange={handleTimeOptionChange}
+                        onChange={(e) => setTimeOption(e.target.value)}
                       />{' '}
                       Nacht
                     </label>
@@ -224,7 +184,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                 )}
                 <hr width="100%"></hr>
                 <label htmlFor="repeat">Wiederholen?</label>
-                <Button type="button" name="repeat" id="repeat" onClick={handleRepeatChange}>
+                <Button type="button" name="repeat" id="repeat" onClick={() => setShowRepeatOptions(!showRepeatOptions)}>
                   {showRepeatOptions ? 'Nein' : 'Ja'}
                 </Button>
 
@@ -240,7 +200,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="repeatOption"
                         value="täglich"
                         checked={repeatOption === 'täglich'}
-                        onChange={handleRepeatOptionChange}
+                        onChange={(e) => setRepeatOption(e.target.value)}
                       />{' '}
                       Täglich
                     </label>
@@ -254,7 +214,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                         name="repeatOption"
                         value="wöchentlich"
                         checked={repeatOption === 'wöchentlich'}
-                        onChange={handleRepeatOptionChange}
+                        onChange={(e) => setRepeatOption(e.target.value)}
                       />{' '}
                       Wöchentlich
                     </label>
@@ -268,7 +228,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
             </ModalBody>
             <Button
               onClick={() => {
-                setAdd(false);
+                setEditActive(false);
               }}
             >
               Schließen
