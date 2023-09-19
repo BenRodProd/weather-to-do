@@ -23,7 +23,7 @@ export const Footer = styled.div`
 
 export const Zoom = keyframes`
   0% {
-    z-index:5;
+   
     width:85%;
     height:85%;
     filter:blur(1rem);
@@ -33,7 +33,7 @@ export const Zoom = keyframes`
     
   }
   100% {
-    z-index:0;
+  
     width:85%;
     height:85%;
   }

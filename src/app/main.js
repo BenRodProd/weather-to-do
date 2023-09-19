@@ -78,8 +78,10 @@ export default function Main({ user }) {
     if (user) {
       fetchUserTasksFromFirestore(user.email).then((tasks) => {
         setAllTasks(tasks);
-
-        setLoading(false);
+        setTimeout(() => {
+          
+          setLoading(false);
+        },500)
       });
     }
   }, []);

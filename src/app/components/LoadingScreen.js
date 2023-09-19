@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Spinner } from '@nextui-org/spinner';
+import Image from 'next/image';
 
 const StyledLoadingScreen = styled.div`
   display: flex;
@@ -7,15 +8,15 @@ const StyledLoadingScreen = styled.div`
   align-items: center;
   height: 100vh;
   width: 100%;
-  background-color: aliceblue;
+  background-color: white;
   z-index: 6;
 `;
 
 export default function LoadingScreen() {
   return (
     <div className="loading">
-      <h1>Loading...</h1>
-      <Spinner color="warning" />
+      
+      <Image src="/Spinner.gif" alt="loading" width="80" height="80" />
     </div>
   );
 }
