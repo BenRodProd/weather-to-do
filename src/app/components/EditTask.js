@@ -5,17 +5,15 @@ import updateTaskInDatabase from '@/service/updateTask';
 import fetchUserTasksFromFirestore from '@/service/fetchTasks';
 
 export default function EditTask({ task, editActive, setEditActive, user, setAllTasks }) {
- 
-  const [showRepeatOptions, setShowRepeatOptions] = useState(task.doesRepeat==="on");
+  const [showRepeatOptions, setShowRepeatOptions] = useState(task.doesRepeat === 'on');
   const [timeOption, setTimeOption] = useState(task.timeOption);
   const [repeatOption, setRepeatOption] = useState(task.repeatOption);
-  const [allDayChecked, setAllDayChecked] = useState(task.isAllDay==="on");
+  const [allDayChecked, setAllDayChecked] = useState(task.isAllDay === 'on');
   const [weatherOption, setWeatherOption] = useState(task.weatherOption);
-  const [weatherChecked, setWeatherChecked] = useState(task.dependsOnWeather==="on");
+  const [weatherChecked, setWeatherChecked] = useState(task.dependsOnWeather === 'on');
   const [taskName, setTaskName] = useState(task.name);
 
   const handleSubmitTask = async (e) => {
-    
     e.preventDefault();
 
     const dependsOnWeather = weatherChecked ? 'on' : 'off';
@@ -36,7 +34,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
       repeatOptionValue,
       user.email
     );
-   
+
     const tasks = await fetchUserTasksFromFirestore(user.email);
     setAllTasks(tasks);
   };
@@ -44,7 +42,12 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
   return (
     <>
       <BackDropper>
-        <StyledAddModal backdrop="blur" isOpen={editActive} onOpenChange={setEditActive} onClose={setEditActive}>
+        <StyledAddModal
+          backdrop="blur"
+          isOpen={editActive}
+          onOpenChange={setEditActive}
+          onClose={setEditActive}
+        >
           <ModalContent>
             <ModalHeader>Aufgabe bearbeiten:</ModalHeader>
             <hr width="100%"></hr>
@@ -104,7 +107,12 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                 )}
                 <hr width="100%"></hr>
                 <label htmlFor="allDay">Tageszeit egal?</label>
-                <Button type="button" name="allDay" id="allDay" onClick={() => setAllDayChecked(!allDayChecked)}>
+                <Button
+                  type="button"
+                  name="allDay"
+                  id="allDay"
+                  onClick={() => setAllDayChecked(!allDayChecked)}
+                >
                   {allDayChecked ? 'Ja' : 'Nein'}
                 </Button>
 
@@ -184,7 +192,12 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                 )}
                 <hr width="100%"></hr>
                 <label htmlFor="repeat">Wiederholen?</label>
-                <Button type="button" name="repeat" id="repeat" onClick={() => setShowRepeatOptions(!showRepeatOptions)}>
+                <Button
+                  type="button"
+                  name="repeat"
+                  id="repeat"
+                  onClick={() => setShowRepeatOptions(!showRepeatOptions)}
+                >
                   {showRepeatOptions ? 'Nein' : 'Ja'}
                 </Button>
 

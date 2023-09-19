@@ -7,12 +7,8 @@ export default async function HandleDeleteTaskFinally(id) {
     const taskDocRef = doc(firestore, 'todos', id);
 
     // Get the task document data
- 
-        // Delete the document
-        await deleteDoc(taskDocRef);
-      }
-    
-   catch (error) {
-    
-  }
+
+    // Delete the document
+    await deleteDoc(taskDocRef);
+  } catch (error) {}
 }

@@ -24,8 +24,13 @@ export const Footer = styled.div`
 export const Zoom = keyframes`
   0% {
     z-index:5;
-    width:400%;
-    height:400%
+    width:85%;
+    height:85%;
+    filter:blur(1rem);
+  }
+  50% {
+    filter:blur(0);
+    
   }
   100% {
     z-index:0;
@@ -62,28 +67,28 @@ export const Button = styled.button`
   z-index: 0;
 `;
 export const EditButton = styled.button`
-  position:absolute;
+  position: absolute;
   color: black;
-  right:0;
-  top:0;
-  
+  right: 0;
+  top: 0;
+
   padding: 0.5rem 0.5rem;
   border: none;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   cursor: pointer;
   user-select: none;
   z-index: 0;
 `;
 
 export const DeleteButton = styled.button`
-  position:absolute;
+  position: absolute;
   color: black;
-  left:0;
-  top:0;
-  
+  left: 0;
+  top: 0;
+
   padding: 0.5rem 0.5rem;
   border: none;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   cursor: pointer;
   user-select: none;
   z-index: 0;
@@ -95,8 +100,8 @@ export const CardHeader = styled.h2`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  margin-top:1rem;
- ` 
+  margin-top: 1rem;
+`;
 
 export const MainDiv = styled.div`
   display: flex;
@@ -151,7 +156,7 @@ export const Decision = styled.div`
 
 export const TaskCard = styled.ul`
   display: flex;
-  position:relative;
+  position: relative;
   color: black;
   flex-direction: column;
   justify-content: center;

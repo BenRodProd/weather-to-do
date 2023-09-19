@@ -4,10 +4,17 @@ import { ModalContent, ModalHeader, useDisclosure } from '@nextui-org/react';
 import handleLogout from '@/service/logout';
 import ShowAllTasks from './ShowAllTasks';
 
-export default function Settings({ setShowAllTasks, settings, setSettings, city, handleChangeCity, error }) {
+export default function Settings({
+  setShowAllTasks,
+  settings,
+  setSettings,
+  city,
+  handleChangeCity,
+  error
+}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   function handleShowAllTasks() {
-    setSettings(false)
+    setSettings(false);
     setShowAllTasks(true);
   }
   return (
@@ -27,8 +34,8 @@ export default function Settings({ setShowAllTasks, settings, setSettings, city,
 
               <hr width="100%"></hr>
 
-              <Button onClick ={() => handleShowAllTasks()}>Alle Aufgaben anzeigen</Button>
-
+              <Button onClick={() => handleShowAllTasks()}>Alle Aufgaben anzeigen</Button>
+              <hr width="100%"></hr>
               <Button onClick={() => handleLogout()}>Logout</Button>
 
               <hr width="100%"></hr>
@@ -40,7 +47,6 @@ export default function Settings({ setShowAllTasks, settings, setSettings, city,
           )}
         </ModalContent>
       </StyledModal>
-      
     </BackDropper>
   );
 }

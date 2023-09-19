@@ -6,24 +6,24 @@ import fetchUserTasksFromFirestore from '@/service/fetchTasks';
 import EditTask from './EditTask';
 import HandleDeleteTaskFinally from '@/service/deleteTaskFinal';
 export default function DisplayTasks({ displayTasks, user, setAllTasks }) {
- const [editActive, setEditActive] = useState(false);
- const [editTaskId, setEditTaskId] = useState(null);
+  const [editActive, setEditActive] = useState(false);
+  const [editTaskId, setEditTaskId] = useState(null);
   async function DeleteTask(id) {
     await HandleDeleteTask(id);
     fetchUserTasksFromFirestore(user.email).then((tasks) => {
       setAllTasks(tasks);
     });
   }
-function editTask (task) {
-  setEditActive(true);
-  setEditTaskId(task);
-}
-async function deleteTask(task) {
-  await HandleDeleteTaskFinally(task.id);
-  fetchUserTasksFromFirestore(user.email).then((tasks) => {
-    setAllTasks(tasks);
-  });
-}
+  function editTask(task) {
+    setEditActive(true);
+    setEditTaskId(task);
+  }
+  async function deleteTask(task) {
+    await HandleDeleteTaskFinally(task.id);
+    fetchUserTasksFromFirestore(user.email).then((tasks) => {
+      setAllTasks(tasks);
+    });
+  }
 
   return (
     <>
@@ -31,8 +31,16 @@ async function deleteTask(task) {
         {displayTasks.map((task) => {
           return (
             <TaskCard key={task.id}>
-              <li><EditButton onClick={() => editTask(task)}><Image src="/edit.png" alt="edit" width="30" height="30" /></EditButton></li>
-              <li><DeleteButton onClick={() => deleteTask(task)}><Image src="/delete.png" alt="delete" width="30" height="30" /></DeleteButton></li>
+              <li>
+                <EditButton onClick={() => editTask(task)}>
+                  <Image src="/edit.png" alt="edit" width="30" height="30" />
+                </EditButton>
+              </li>
+              <li>
+                <DeleteButton onClick={() => deleteTask(task)}>
+                  <Image src="/delete.png" alt="delete" width="30" height="30" />
+                </DeleteButton>
+              </li>
               <li>
                 <CardHeader>{task.name}</CardHeader>
               </li>
@@ -57,7 +65,13 @@ async function deleteTask(task) {
         })}
       </TaskBoard>
       {editActive && (
-        <EditTask task={editTaskId} user={user} setAllTasks={setAllTasks} editActive={editActive} setEditActive={setEditActive} />
+        <EditTask
+          task={editTaskId}
+          user={user}
+          setAllTasks={setAllTasks}
+          editActive={editActive}
+          setEditActive={setEditActive}
+        />
       )}
     </>
   );

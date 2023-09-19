@@ -24,6 +24,7 @@ import Settings from './components/Settings';
 import AddTask from './components/AddTask';
 import { TaskSelect } from './components/RandomTaskSelect';
 import ShowAllTasks from './components/ShowAllTasks';
+import LoadingScreen from './components/LoadingScreen';
 
 export default function Main({ user }) {
   const [city, setCity] = useState(null);
@@ -38,7 +39,8 @@ export default function Main({ user }) {
   const [displayTasks, setDisplayTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('');
-  const[showAllTasks, setShowAllTasks] = useState(false);
+  const [showAllTasks, setShowAllTasks] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchUserCityFromDatabase(user.email)
@@ -76,6 +78,8 @@ export default function Main({ user }) {
     if (user) {
       fetchUserTasksFromFirestore(user.email).then((tasks) => {
         setAllTasks(tasks);
+
+        setLoading(false);
       });
     }
   }, []);
@@ -164,7 +168,9 @@ export default function Main({ user }) {
       setSelectedTask(task);
     }
   };
-
+  if (loading) {
+    return <LoadingScreen />;
+  }
   if (!city || !data) {
     // If the user's city is not found in the database or data is not available
     return (
@@ -189,6 +195,13 @@ export default function Main({ user }) {
   return (
     <>
       <MainDiv>
+        <BackgroundImage
+          priority
+          alt="backgroundimage"
+          height="1024"
+          width="1024"
+          src={backgroundImageSrc}
+        ></BackgroundImage>
         <SettingsButton onClick={() => setSettings((prevSettings) => !prevSettings)}>
           <Image src="/settings.png" alt="settings" width="30" height="30" />
         </SettingsButton>
@@ -213,13 +226,6 @@ export default function Main({ user }) {
             <DisplayTasks setAllTasks={setAllTasks} user={user} displayTasks={displayTasks} />
           </>
         )}
-        <BackgroundImage
-          priority
-          alt="backgroundimage"
-          height="1024"
-          width="1024"
-          src={backgroundImageSrc}
-        ></BackgroundImage>
         <Decision>
           {displayTasks.length > 1 && (
             <Button onClick={() => randomTask()}>Ich kann mich nicht entscheiden</Button>
@@ -236,7 +242,15 @@ export default function Main({ user }) {
           handleChangeCity={handleChangeCity}
         />
       )}
-      {showAllTasks && <ShowAllTasks allTasks={allTasks} setAllTasks={setAllTasks} user={user} setShowAllTasks={setShowAllTasks} setSettings={setSettings} />}
+      {showAllTasks && (
+        <ShowAllTasks
+          allTasks={allTasks}
+          setAllTasks={setAllTasks}
+          user={user}
+          setShowAllTasks={setShowAllTasks}
+          setSettings={setSettings}
+        />
+      )}
       {add && <AddTask user={user} add={add} setAdd={setAdd} setAllTasks={setAllTasks} />}
       {selectedTask && <TaskSelect setSelectedTask={setSelectedTask} selectedTask={selectedTask} />}
     </>

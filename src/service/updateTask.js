@@ -12,7 +12,6 @@ export default async function updateTaskInDatabase(
   repeatOption,
   user
 ) {
-  
   try {
     // Define the Firestore document reference for the task with the given ID
     const taskDocRef = doc(firestore, 'todos', id);
@@ -28,8 +27,5 @@ export default async function updateTaskInDatabase(
       repeatOption,
       user
     });
- 
-  } catch (error) {
-   
-  }
+  } catch (error) {}
 }
