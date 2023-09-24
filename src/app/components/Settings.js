@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { BackDropper, StyledModal, StyledForm, StyledInput, Button, ErrorMessage } from './Styles';
 import { ModalContent, ModalHeader, useDisclosure } from '@nextui-org/react';
 import handleLogout from '@/service/logout';
-import ShowAllTasks from './ShowAllTasks';
 import ChooseStyling from './ChooseStyling';
 
 export default function Settings({
@@ -45,7 +43,7 @@ export default function Settings({
 
               <hr width="100%"></hr>
 
-              <Button color="danger" variant="light" onClick={() => setSettings(false)}>
+              <Button onClick={() => setSettings(false)}>
                 Schließen
               </Button>
             </>

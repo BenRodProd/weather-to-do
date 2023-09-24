@@ -17,7 +17,6 @@ import {
 } from './components/Styles';
 import handleLogout from '@/service/logout';
 import writeToDatabase from '@/service/write';
-import fetchUserCityFromDatabase from '@/service/fetchCity';
 import fetchUserTasksFromFirestore from '@/service/fetchTasks';
 import DisplayTasks from './components/DisplayTasks';
 import Settings from './components/Settings';
@@ -25,6 +24,7 @@ import AddTask from './components/AddTask';
 import { TaskSelect } from './components/RandomTaskSelect';
 import ShowAllTasks from './components/ShowAllTasks';
 import LoadingScreen from './components/LoadingScreen';
+import fetchUserCityAndStyleFromFirestore from '@/service/fetchCity';
 
 export default function Main({ user }) {
   const [city, setCity] = useState(null);
@@ -44,11 +44,21 @@ export default function Main({ user }) {
   const [style, setStyle] = useState('modern')
 
   useEffect(() => {
-    fetchUserCityFromDatabase(user.email)
-      .then((city) => {
+    fetchUserCityAndStyleFromFirestore(user.email)
+    .then((data) => {
+      if (data) {
+        const { city, style } = data;
+
         setCity(city);
-      })
+        if (style) {
+          setStyle(style);
+        } else {
+          setStyle("modern");
+        }
+      }
+    })
       .catch((error) => {});
+      if (city) {
     async function fetchData() {
       try {
         const weatherData = await requestWeather(city);
@@ -70,10 +80,10 @@ export default function Main({ user }) {
       }
     }
 
-    if (city) {
+    
       fetchData();
     }
-  }, [city, user.email]);
+  }, [city, user.email, rainy]);
 
   useEffect(() => {
     if (user) {
