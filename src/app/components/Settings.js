@@ -3,14 +3,17 @@ import { BackDropper, StyledModal, StyledForm, StyledInput, Button, ErrorMessage
 import { ModalContent, ModalHeader, useDisclosure } from '@nextui-org/react';
 import handleLogout from '@/service/logout';
 import ShowAllTasks from './ShowAllTasks';
+import ChooseStyling from './ChooseStyling';
 
 export default function Settings({
   setShowAllTasks,
   settings,
   setSettings,
   city,
+  user,
   handleChangeCity,
-  error
+  error,
+  setStyle
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   function handleShowAllTasks() {
@@ -35,6 +38,8 @@ export default function Settings({
               <hr width="100%"></hr>
 
               <Button onClick={() => handleShowAllTasks()}>Alle Aufgaben anzeigen</Button>
+              <hr width="100%"></hr>
+              <ChooseStyling user={user.email} setStyle={setStyle}/>
               <hr width="100%"></hr>
               <Button onClick={() => handleLogout()}>Logout</Button>
 

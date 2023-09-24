@@ -41,6 +41,7 @@ export default function Main({ user }) {
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('');
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [style, setStyle] = useState('modern')
 
   useEffect(() => {
     fetchUserCityFromDatabase(user.email)
@@ -242,6 +243,8 @@ export default function Main({ user }) {
           setSettings={setSettings}
           city={city}
           handleChangeCity={handleChangeCity}
+          user={user}
+          setStyle={setStyle}
         />
       )}
       {showAllTasks && (
