@@ -11,7 +11,8 @@ export default function Settings({
   user,
   handleChangeCity,
   error,
-  setStyle
+  setStyle,
+  style
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   function handleShowAllTasks() {
@@ -37,7 +38,7 @@ export default function Settings({
 
               <Button onClick={() => handleShowAllTasks()}>Alle Aufgaben anzeigen</Button>
               <hr width="100%"></hr>
-              <ChooseStyling user={user.email} setStyle={setStyle}/>
+              <ChooseStyling style={style} user={user.email} setStyle={setStyle}/>
               <hr width="100%"></hr>
               <Button onClick={() => handleLogout()}>Logout</Button>
 

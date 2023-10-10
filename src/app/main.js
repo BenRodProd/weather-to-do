@@ -13,7 +13,8 @@ import {
   SettingsButton,
   AddButton,
   ErrorMessage,
-  CurrentMessage
+  CurrentMessage,
+ 
 } from './components/Styles';
 import handleLogout from '@/service/logout';
 import writeToDatabase from '@/service/write';
@@ -67,10 +68,10 @@ export default function Main({ user }) {
 
         if (rainy) {
           const randomImageNumber = Math.floor(Math.random() * 3);
-          setBackgroundImageSrc(`/assets/rain${randomImageNumber}.webp`);
+          setBackgroundImageSrc(`/assets/${style}_rain${randomImageNumber}.webp`);
         } else {
-          const randomImageNumber = Math.floor(Math.random() * 7);
-          setBackgroundImageSrc(`/assets/sun${randomImageNumber}.webp`);
+          const randomImageNumber = Math.floor(Math.random() * 6);
+          setBackgroundImageSrc(`/assets/${style}_sun${randomImageNumber}.webp`);
         }
       } catch (error) {
         if (error.code === 1006 || error.code === 400) {
@@ -83,7 +84,7 @@ export default function Main({ user }) {
     
       fetchData();
     }
-  }, [city, user.email, rainy]);
+  }, [city, user.email, rainy, style]);
 
   useEffect(() => {
     if (user) {
@@ -247,6 +248,7 @@ export default function Main({ user }) {
       </MainDiv>
       {settings && (
         <Settings
+        style={style}
           setShowAllTasks={setShowAllTasks}
           error={error}
           settings={settings}

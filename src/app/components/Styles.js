@@ -91,7 +91,7 @@ export const DeleteButton = styled.button`
   background-color: rgba(0, 0, 0, 0);
   cursor: pointer;
   user-select: none;
-  z-index: 0;
+  
 `;
 
 export const CardHeader = styled.h2`
@@ -109,10 +109,22 @@ export const MainDiv = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
+  
   height: 100dvh;
   width: 100%;
+  
+  user-select: none;
 `;
+
+export const Background = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -111;
+  background-color: rgba(0, 0, 0, 0.8);
+`  
 
 export const RadioStyle = styled.div`
   display: flex;
@@ -194,10 +206,11 @@ export const StyledModal = styled(Modal)`
   background-color: lightgray;
   border-radius: 10px;
   padding: 20px;
-  gap: 3rem;
+  gap: 1rem;
   user-select: none;
   z-index: 2;
   text-align: center;
+ 
 `;
 export const StyledAddModal = styled(Modal)`
   display: flex;
