@@ -13,11 +13,11 @@ import {
   SettingsButton,
   AddButton,
   ErrorMessage,
-  CurrentMessage
+  CurrentMessage,
+ 
 } from './components/Styles';
 import handleLogout from '@/service/logout';
 import writeToDatabase from '@/service/write';
-import fetchUserCityFromDatabase from '@/service/fetchCity';
 import fetchUserTasksFromFirestore from '@/service/fetchTasks';
 import DisplayTasks from './components/DisplayTasks';
 import Settings from './components/Settings';
@@ -25,6 +25,7 @@ import AddTask from './components/AddTask';
 import { TaskSelect } from './components/RandomTaskSelect';
 import ShowAllTasks from './components/ShowAllTasks';
 import LoadingScreen from './components/LoadingScreen';
+import fetchUserCityAndStyleFromFirestore from '@/service/fetchCity';
 
 export default function Main({ user }) {
   const [city, setCity] = useState(null);
@@ -41,13 +42,24 @@ export default function Main({ user }) {
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('');
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [style, setStyle] = useState('modern')
 
   useEffect(() => {
-    fetchUserCityFromDatabase(user.email)
-      .then((city) => {
+    fetchUserCityAndStyleFromFirestore(user.email)
+    .then((data) => {
+      if (data) {
+        const { city, style } = data;
+
         setCity(city);
-      })
+        if (style) {
+          setStyle(style);
+        } else {
+          setStyle("modern");
+        }
+      }
+    })
       .catch((error) => {});
+      if (city) {
     async function fetchData() {
       try {
         const weatherData = await requestWeather(city);
@@ -56,10 +68,10 @@ export default function Main({ user }) {
 
         if (rainy) {
           const randomImageNumber = Math.floor(Math.random() * 3);
-          setBackgroundImageSrc(`/assets/rain${randomImageNumber}.webp`);
+          setBackgroundImageSrc(`/assets/${style}_rain${randomImageNumber}.webp`);
         } else {
-          const randomImageNumber = Math.floor(Math.random() * 7);
-          setBackgroundImageSrc(`/assets/sun${randomImageNumber}.webp`);
+          const randomImageNumber = Math.floor(Math.random() * 6);
+          setBackgroundImageSrc(`/assets/${style}_sun${randomImageNumber}.webp`);
         }
       } catch (error) {
         if (error.code === 1006 || error.code === 400) {
@@ -69,10 +81,10 @@ export default function Main({ user }) {
       }
     }
 
-    if (city) {
+    
       fetchData();
     }
-  }, [city, user.email]);
+  }, [city, user.email, rainy, style]);
 
   useEffect(() => {
     if (user) {
@@ -236,12 +248,15 @@ export default function Main({ user }) {
       </MainDiv>
       {settings && (
         <Settings
+        style={style}
           setShowAllTasks={setShowAllTasks}
           error={error}
           settings={settings}
           setSettings={setSettings}
           city={city}
           handleChangeCity={handleChangeCity}
+          user={user}
+          setStyle={setStyle}
         />
       )}
       {showAllTasks && (

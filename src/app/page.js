@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Main from './main';
 import { auth } from '@/service/firebase';
 import Login from '@/service/login';
-import { Footer } from './components/Styles';
+import { Footer, Background } from './components/Styles';
 import LoadingScreen from './components/LoadingScreen';
 
 export default function Home() {
@@ -37,7 +37,9 @@ export default function Home() {
   return (
     <>
       {loggedIn ? <Main user={user} /> : <Login />}
+      <Background/>
       <Footer>(c) 2023 BenRodProd</Footer>
+   
     </>
   );
 }
