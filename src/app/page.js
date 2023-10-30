@@ -37,9 +37,8 @@ export default function Home() {
   return (
     <>
       {loggedIn ? <Main user={user} /> : <Login />}
-      <Background/>
+      <Background />
       <Footer>(c) 2023 BenRodProd</Footer>
-   
     </>
   );
 }

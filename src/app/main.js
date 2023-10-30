@@ -13,8 +13,7 @@ import {
   SettingsButton,
   AddButton,
   ErrorMessage,
-  CurrentMessage,
- 
+  CurrentMessage
 } from './components/Styles';
 import handleLogout from '@/service/logout';
 import writeToDatabase from '@/service/write';
@@ -42,46 +41,45 @@ export default function Main({ user }) {
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('');
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [style, setStyle] = useState('modern')
+  const [style, setStyle] = useState('modern');
 
   useEffect(() => {
     fetchUserCityAndStyleFromFirestore(user.email)
-    .then((data) => {
-      if (data) {
-        const { city, style } = data;
+      .then((data) => {
+        if (data) {
+          const { city, style } = data;
 
-        setCity(city);
-        if (style) {
-          setStyle(style);
-        } else {
-          setStyle("modern");
+          setCity(city);
+          if (style) {
+            setStyle(style);
+          } else {
+            setStyle('modern');
+          }
         }
-      }
-    })
+      })
       .catch((error) => {});
-      if (city) {
-    async function fetchData() {
-      try {
-        const weatherData = await requestWeather(city);
-        setData(weatherData); // Update the state with fetched data
-        setRainy(weatherData.current.condition.text.includes('rain'));
+    if (city) {
+      async function fetchData() {
+        try {
+          const weatherData = await requestWeather(city);
+          setData(weatherData); // Update the state with fetched data
+          setRainy(weatherData.current.condition.text.includes('rain'));
 
-        if (rainy) {
-          const randomImageNumber = Math.floor(Math.random() * 3);
-          setBackgroundImageSrc(`/assets/${style}_rain${randomImageNumber}.webp`);
-        } else {
-          const randomImageNumber = Math.floor(Math.random() * 6);
-          setBackgroundImageSrc(`/assets/${style}_sun${randomImageNumber}.webp`);
-        }
-      } catch (error) {
-        if (error.code === 1006 || error.code === 400) {
-          setData(null);
-          setError(true);
+          if (rainy) {
+            const randomImageNumber = Math.floor(Math.random() * 3);
+            setBackgroundImageSrc(`/assets/${style}_rain${randomImageNumber}.webp`);
+          } else {
+            const randomImageNumber = Math.floor(Math.random() * 6);
+            setBackgroundImageSrc(`/assets/${style}_sun${randomImageNumber}.webp`);
+          }
+        } catch (error) {
+          if (error.code === 1006 || error.code === 400) {
+            setData(null);
+            setError(true);
+          }
         }
       }
-    }
 
-    
       fetchData();
     }
   }, [city, user.email, rainy, style]);
@@ -91,9 +89,8 @@ export default function Main({ user }) {
       fetchUserTasksFromFirestore(user.email).then((tasks) => {
         setAllTasks(tasks);
         setTimeout(() => {
-          
           setLoading(false);
-        },500)
+        }, 500);
       });
     }
   }, []);
@@ -214,8 +211,7 @@ export default function Main({ user }) {
           alt="backgroundimage"
           height="1024"
           width="1024"
-          src={backgroundImageSrc}
-        ></BackgroundImage>
+          src={backgroundImageSrc}></BackgroundImage>
         <SettingsButton onClick={() => setSettings((prevSettings) => !prevSettings)}>
           <Image src="/settings.png" alt="settings" width="30" height="30" />
         </SettingsButton>
@@ -248,7 +244,7 @@ export default function Main({ user }) {
       </MainDiv>
       {settings && (
         <Settings
-        style={style}
+          style={style}
           setShowAllTasks={setShowAllTasks}
           error={error}
           settings={settings}

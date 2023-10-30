@@ -1,7 +1,5 @@
 import Image from 'next/image';
 
-
-
 export default function LoadingScreen() {
   return (
     <div className="loading">

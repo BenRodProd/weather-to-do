@@ -46,8 +46,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
           backdrop="blur"
           isOpen={editActive}
           onOpenChange={setEditActive}
-          onClose={setEditActive}
-        >
+          onClose={setEditActive}>
           <ModalContent>
             <ModalHeader>Aufgabe bearbeiten:</ModalHeader>
             <hr width="100%"></hr>
@@ -68,8 +67,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                   type="button"
                   name="weather"
                   id="weather"
-                  onClick={() => setWeatherChecked(!weatherChecked)}
-                >
+                  onClick={() => setWeatherChecked(!weatherChecked)}>
                   {weatherChecked ? 'Nein' : 'Ja'}
                 </Button>
 
@@ -77,8 +75,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                   <div>
                     <label
                       htmlFor="goodWeather"
-                      style={{ color: weatherOption === 'gutes Wetter' ? 'green' : 'black' }}
-                    >
+                      style={{ color: weatherOption === 'gutes Wetter' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="goodWeather"
@@ -91,8 +88,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                     </label>
                     <label
                       htmlFor="badWeather"
-                      style={{ color: weatherOption === 'schlechtes Wetter' ? 'green' : 'black' }}
-                    >
+                      style={{ color: weatherOption === 'schlechtes Wetter' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="badWeather"
@@ -111,8 +107,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                   type="button"
                   name="allDay"
                   id="allDay"
-                  onClick={() => setAllDayChecked(!allDayChecked)}
-                >
+                  onClick={() => setAllDayChecked(!allDayChecked)}>
                   {allDayChecked ? 'Ja' : 'Nein'}
                 </Button>
 
@@ -120,8 +115,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                   <div>
                     <label
                       htmlFor="Morgen"
-                      style={{ color: timeOption === 'Morgen' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Morgen' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Morgen"
@@ -134,8 +128,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                     </label>
                     <label
                       htmlFor="Mittag"
-                      style={{ color: timeOption === 'Mittag' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Mittag' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Mittag"
@@ -148,8 +141,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                     </label>
                     <label
                       htmlFor="Nachmittag"
-                      style={{ color: timeOption === 'Nachmittag' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Nachmittag' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Nachmittag"
@@ -162,8 +154,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                     </label>
                     <label
                       htmlFor="Abend"
-                      style={{ color: timeOption === 'Abend' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Abend' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Abend"
@@ -176,8 +167,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                     </label>
                     <label
                       htmlFor="Nacht"
-                      style={{ color: timeOption === 'Nacht' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Nacht' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Nacht"
@@ -196,8 +186,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                   type="button"
                   name="repeat"
                   id="repeat"
-                  onClick={() => setShowRepeatOptions(!showRepeatOptions)}
-                >
+                  onClick={() => setShowRepeatOptions(!showRepeatOptions)}>
                   {showRepeatOptions ? 'Nein' : 'Ja'}
                 </Button>
 
@@ -205,8 +194,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                   <div>
                     <label
                       htmlFor="daily"
-                      style={{ color: repeatOption === 'täglich' ? 'green' : 'black' }}
-                    >
+                      style={{ color: repeatOption === 'täglich' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="daily"
@@ -219,8 +207,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
                     </label>
                     <label
                       htmlFor="weekly"
-                      style={{ color: repeatOption === 'wöchentlich' ? 'green' : 'black' }}
-                    >
+                      style={{ color: repeatOption === 'wöchentlich' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="weekly"
@@ -242,8 +229,7 @@ export default function EditTask({ task, editActive, setEditActive, user, setAll
             <Button
               onClick={() => {
                 setEditActive(false);
-              }}
-            >
+              }}>
               Schließen
             </Button>
           </ModalContent>
