@@ -38,15 +38,13 @@ export default function Settings({
 
               <Button onClick={() => handleShowAllTasks()}>Alle Aufgaben anzeigen</Button>
               <hr width="100%"></hr>
-              <ChooseStyling style={style} user={user.email} setStyle={setStyle}/>
+              <ChooseStyling style={style} user={user.email} setStyle={setStyle} />
               <hr width="100%"></hr>
               <Button onClick={() => handleLogout()}>Logout</Button>
 
               <hr width="100%"></hr>
 
-              <Button onClick={() => setSettings(false)}>
-                Schließen
-              </Button>
+              <Button onClick={() => setSettings(false)}>Schließen</Button>
             </>
           )}
         </ModalContent>

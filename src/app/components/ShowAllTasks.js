@@ -15,12 +15,7 @@ const AllTasksWrapper = styled.div`
   height: 100%;
 `;
 
-export default function ShowAllTasks({
-  setShowAllTasks,
-  allTasks,
-  setAllTasks,
-  user,
-}) {
+export default function ShowAllTasks({ setShowAllTasks, allTasks, setAllTasks, user }) {
   return (
     <AllTasksWrapper>
       <Button onClick={() => setShowAllTasks(false)}>Schließen</Button>

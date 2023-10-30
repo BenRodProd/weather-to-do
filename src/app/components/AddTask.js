@@ -105,8 +105,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                   name="weather"
                   id="weather"
                   onClick={handleWeatherChange}
-                  checked={weatherChecked}
-                >
+                  checked={weatherChecked}>
                   {weatherChecked ? 'Nein' : 'Ja'}
                 </Button>
 
@@ -114,8 +113,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                   <div>
                     <label
                       htmlFor="goodWeather"
-                      style={{ color: weatherOption === 'gutes Wetter' ? 'green' : 'black' }}
-                    >
+                      style={{ color: weatherOption === 'gutes Wetter' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="goodWeather"
@@ -128,8 +126,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                     </label>
                     <label
                       htmlFor="badWeather"
-                      style={{ color: weatherOption === 'schlechtes Wetter' ? 'green' : 'black' }}
-                    >
+                      style={{ color: weatherOption === 'schlechtes Wetter' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="badWeather"
@@ -152,8 +149,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                   <div>
                     <label
                       htmlFor="Morgen"
-                      style={{ color: timeOption === 'Morgen' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Morgen' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Morgen"
@@ -166,8 +162,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                     </label>
                     <label
                       htmlFor="Mittag"
-                      style={{ color: timeOption === 'Mittag' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Mittag' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Mittag"
@@ -180,8 +175,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                     </label>
                     <label
                       htmlFor="Nachmittag"
-                      style={{ color: timeOption === 'Nachmittag' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Nachmittag' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Nachmittag"
@@ -194,8 +188,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                     </label>
                     <label
                       htmlFor="Abend"
-                      style={{ color: timeOption === 'Abend' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Abend' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Abend"
@@ -208,8 +201,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                     </label>
                     <label
                       htmlFor="Nacht"
-                      style={{ color: timeOption === 'Nacht' ? 'green' : 'black' }}
-                    >
+                      style={{ color: timeOption === 'Nacht' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="Nacht"
@@ -232,8 +224,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                   <div>
                     <label
                       htmlFor="daily"
-                      style={{ color: repeatOption === 'täglich' ? 'green' : 'black' }}
-                    >
+                      style={{ color: repeatOption === 'täglich' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="daily"
@@ -246,8 +237,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
                     </label>
                     <label
                       htmlFor="weekly"
-                      style={{ color: repeatOption === 'wöchentlich' ? 'green' : 'black' }}
-                    >
+                      style={{ color: repeatOption === 'wöchentlich' ? 'green' : 'black' }}>
                       <NoRadio
                         type="radio"
                         id="weekly"
@@ -269,8 +259,7 @@ export default function AddTask({ add, setAdd, user, setAllTasks }) {
             <Button
               onClick={() => {
                 setAdd(false);
-              }}
-            >
+              }}>
               Schließen
             </Button>
           </ModalContent>
