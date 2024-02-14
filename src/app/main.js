@@ -62,7 +62,7 @@ export default function Main({ user }) {
       async function fetchData() {
         try {
           const weatherData = await requestWeather(city);
-          setData(weatherData); // Update the state with fetched data
+          setData(weatherData); 
           setRainy(weatherData.current.condition.text.includes('rain'));
 
           if (rainy) {

@@ -111,7 +111,7 @@ export const MainDiv = styled.div`
 
   height: 100dvh;
   width: 100%;
-
+  
   user-select: none;
 `;
 
